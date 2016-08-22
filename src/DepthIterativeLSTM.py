@@ -8,7 +8,7 @@ from tensorflow.python.ops.math_ops import floor
 from tensorflow.python.ops.rnn_cell import linear
 
 
-class DepthIterativeLSTMOnTest(tf.nn.rnn_cell.RNNCell):
+class DepthIterativeLSTM(tf.nn.rnn_cell.RNNCell):
     def __init__(self, max_iterations=50.0, iterate_prob=0.5, num_units=1, num_layers=1,forget_bias=0.0, input_size=None, output_keep_prob=1.):
         self._iterate_prob = iterate_prob
         self._num_units = num_units
@@ -43,6 +43,8 @@ class DepthIterativeLSTMOnTest(tf.nn.rnn_cell.RNNCell):
 
 
 def iterativeLSTM_CellCalculation(inputs, state, num_units, num_layers, forget_bias, iteration_prob, iteration_activation, keep_prob):
+    # This function calculates a single iteration over the entire network.
+
     number_of_units = num_units.get_shape().dims[0].value
     number_of_layers = num_layers.get_shape().dims[0].value
     cur_state_pos = 0
@@ -58,10 +60,14 @@ def iterativeLSTM_CellCalculation(inputs, state, num_units, num_layers, forget_b
           cur_state_pos += number_of_units * 2
           cur_inp, new_state = LSTM(cur_inp, cur_state, number_of_units, forget_bias, vs.get_variable_scope())
           new_c, new_h = array_ops.split(1, 2, new_state)
-          new_h = (new_h) * iteration_activation + h * (1 - iteration_activation)   # para los escenarios en los que no se habia activado la iteracion, presenar sus estados previos.
-          new_h = tf.nn.dropout(new_h, keep_prob)
+
+          # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
           new_c = new_c * iteration_activation + c * (1 - iteration_activation)  # para los escenarios en los que no se habia activado la iteracion, presenar sus estados previos.
-          new_state = array_ops.concat(1, [new_c, new_h])# aca es dnde genero el nuevo estado<<<<<<<
+          new_h = (new_h) * iteration_activation + h * (1 - iteration_activation)
+          new_h = tf.nn.dropout(new_h, keep_prob)
+
+          # Here the new state is the entire update to the previous state.
+          new_state = array_ops.concat(1, [new_c, new_h])
           new_states.append(new_state)
           new_cs.append(new_c)
           cur_inp = new_h
@@ -70,10 +76,7 @@ def iterativeLSTM_CellCalculation(inputs, state, num_units, num_layers, forget_b
     new_c = array_ops.concat(1, new_cs)
     c = array_ops.concat(1, cs)
 
-    #debug :
-
-    #run:
-    p = linear([ new_c], number_of_units, True, scope="iteration_activation")
+    p = linear([ inputs, new_state], number_of_units, True, scope="iteration_activation")
 
     new_iteration_activation = floor(tf.nn.sigmoid(p) + iteration_prob) * iteration_activation
 
@@ -94,8 +97,9 @@ def iterativeLSTM_Iteration(inputs, state, num_units, num_layers, forget_bias, i
 
     new_iteration_prob = iteration_prob * iteration_prob
 
+
+    # Here the current output is selected. If there will be another iteration, then the residual calculatios is used. Otherwise, the last output will be used.
     new_output = tf.cond(do_keep_looping, lambda:  inputs + new_output, lambda: new_output)
-    #snew_state= tf.cond(do_keep_looping, lambda: state, lambda: new_state)
 
     return new_output, new_state, num_units, num_layers, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, new_iteration_activation, keep_prob, do_keep_looping
 
@@ -106,6 +110,8 @@ def iterativeLSTM_LoopCondition(inputs, state, num_units, num_layers, forget_bia
 
 
 def LSTM(inputs, state, num_units, forget_bias, scope):
+    # This function aplies the standard LSTM calculation.
+
     # "BasicLSTM"
     # Parameters of gates are concatenated into one multiply for efficiency.
     c, h = array_ops.split(1, 2, state)

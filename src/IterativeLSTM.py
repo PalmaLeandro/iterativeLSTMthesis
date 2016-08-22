@@ -7,8 +7,8 @@ from tensorflow.python.ops.math_ops import floor
 from tensorflow.python.ops.rnn_cell import linear
 
 
-class IterativeLSTMOnTest(tf.nn.rnn_cell.RNNCell):
-    def __init__(self, max_iterations=50.0, iterate_prob=0.5, iteration_prob_decay=0.5, num_units=1, forget_bias=0.0, input_size=None):
+class IterativeLSTM(tf.nn.rnn_cell.RNNCell):
+    def __init__(self, max_iterations=50.0, iterate_prob=0.5, iterate_prob_decay=0.5, num_units=1, forget_bias=0.0, input_size=None):
         self._iterate_prob = iterate_prob
         self._num_units = num_units
         self._forget_bias = forget_bias
@@ -23,6 +23,7 @@ class IterativeLSTMOnTest(tf.nn.rnn_cell.RNNCell):
                          tf.constant(self._max_iterations), tf.constant(self._iterate_prob), tf.constant(self._iterate_prob_decay), tf.ones(inputs.get_shape()), tf.constant(True)]
             loop_vars[0], loop_vars[1], loop_vars[2], loop_vars[3], loop_vars[4], loop_vars[5], loop_vars[6], loop_vars[
                 7], loop_vars[8], loop_vars[9] = tf.while_loop(iterativeLSTM_LoopCondition, iterativeLSTM_Iteration, loop_vars)
+
             # This basic approach doesn't apply any last layer to the unit.
         return loop_vars[0] , loop_vars[1], loop_vars[4]
 
@@ -66,7 +67,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
     # Here the current output is selected. If there will be another iteration, then the inputs remain. Otherwise, the last output will be used.
     new_output = tf.cond(do_keep_looping, lambda:  inputs, lambda: new_output)
 
-    return new_output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, new_iteration_activation, do_keep_looping
+    return new_output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, do_keep_looping
 
 
 def iterativeLSTM_LoopCondition(inputs, state, num_units, forget_bias, iteration_number, max_iterations,
@@ -94,6 +95,6 @@ def LSTM(inputs, state, num_units, forget_bias, iteration_activation):
 
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    # In this approach the evidence
+    # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     p = linear([ inputs, new_state], num_units, True,scope= "iteration_activation")
     return new_h, new_state,p

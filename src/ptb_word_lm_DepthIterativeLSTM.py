@@ -60,8 +60,7 @@ import time
 
 import numpy as np
 import tensorflow as tf
-from IterativeLSTMOnTest import *
-from rnn_cell import *
+from DepthIterativeLSTM import *
 
 from tensorflow.models.rnn.ptb import reader
 
@@ -91,11 +90,8 @@ class PTBModel(object):
     # Slightly better results can be obtained with forget gate biases
     # initialized to 1 but the hyperparameters of the model would need to be
     # different than reported in the paper.
-    lstm_cell = IterativeLSTMOnTest(num_units=size, forget_bias=0.0)
-    if is_training and config.keep_prob < 1:
-      lstm_cell = DropoutWrapper(
-          lstm_cell, output_keep_prob=config.keep_prob)
-    cell = MultiRNNCell([lstm_cell] * config.num_layers)
+
+    cell = DepthIterativeLSTM(num_layers=config.num_layers,num_units=size, forget_bias=0.0,output_keep_prob=config.keep_prob)
 
     self._initial_state = cell.zero_state(batch_size, tf.float32)
 
@@ -345,6 +341,7 @@ def main(_):
       mvalid = PTBModel(is_training=False, config=config)
       mtest = PTBModel(is_training=False, config=eval_config)
     merged = tf.merge_all_summaries()
+    #merged = None
     train_writer = tf.train.SummaryWriter("./train", session.graph)
     valid_writer = tf.train.SummaryWriter("./valid", session.graph)
     test_writer = tf.train.SummaryWriter("./test", session.graph)
