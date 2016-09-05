@@ -1,5 +1,5 @@
 # iterativeLSTM
-Research about LSTM and improvements over his structure
+Research about LSTM and improvements over its structure
 
 # To run implementation
 On the base of the repository run:
