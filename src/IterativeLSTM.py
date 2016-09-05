@@ -5,9 +5,9 @@ from tensorflow.python.ops.math_ops import tanh
 from tensorflow.python.ops.math_ops import sigmoid
 from tensorflow.python.ops.math_ops import floor
 from tensorflow.python.ops.rnn_cell import linear
+from rnn_cell import *
 
-
-class IterativeLSTM(tf.nn.rnn_cell.RNNCell):
+class IterativeLSTM(RNNCell):
     def __init__(self, max_iterations=50.0, iterate_prob=0.5, iterate_prob_decay=0.5, num_units=1, forget_bias=0.0, input_size=None):
         self._iterate_prob = iterate_prob
         self._num_units = num_units
@@ -43,7 +43,7 @@ class IterativeLSTM(tf.nn.rnn_cell.RNNCell):
 def iterativeLSTM_CellCalculation(inputs, state, num_units, forget_bias, iteration_prob, iteration_activation):
     number_of_units = num_units.get_shape().dims[0].value
 
-    new_output, new_state, p = LSTM(inputs, state, number_of_units, forget_bias, iteration_activation)
+    new_output, new_state, p = iterativeLSTM(inputs, state, number_of_units, forget_bias, iteration_activation)
 
     new_iteration_activation = floor(tf.nn.sigmoid(p) + iteration_prob) * iteration_activation
 
@@ -75,7 +75,7 @@ def iterativeLSTM_LoopCondition(inputs, state, num_units, forget_bias, iteration
     return keep_looping
 
 
-def LSTM(inputs, state, num_units, forget_bias, iteration_activation):
+def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation):
     # This function aplies the standard LSTM calculation plus the calculation of the evidence to infer if another iteration is needed.
 
     # "BasicLSTM"

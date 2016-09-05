@@ -61,12 +61,12 @@ def iterativeLSTM_CellCalculation(inputs, state, num_units, num_layers, forget_b
           cur_inp, new_state = LSTM(cur_inp, cur_state, number_of_units, forget_bias, vs.get_variable_scope())
           new_c, new_h = array_ops.split(1, 2, new_state)
 
-          # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
-          new_c = new_c * iteration_activation + c * (1 - iteration_activation)  # para los escenarios en los que no se habia activado la iteracion, presenar sus estados previos.
+          # Only a new state is exposed if the iteration gate in this unit of this batch activated an extra iteration.
+          new_c = new_c * iteration_activation + c * (1 - iteration_activation)
           new_h = (new_h) * iteration_activation + h * (1 - iteration_activation)
           new_h = tf.nn.dropout(new_h, keep_prob)
 
-          # Here the new state is the entire update to the previous state.
+          # Here the new state is the entirely update.
           new_state = array_ops.concat(1, [new_c, new_h])
           new_states.append(new_state)
           new_cs.append(new_c)

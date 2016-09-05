@@ -545,7 +545,7 @@ class DropoutWrapper(RNNCell):
     if (not isinstance(self._output_keep_prob, float) or
         self._output_keep_prob < 1):
       output = nn_ops.dropout(output, self._output_keep_prob, seed=self._seed)
-    return output, new_state
+    return output, new_state,iteration_number
 
 
 class EmbeddingWrapper(RNNCell):
