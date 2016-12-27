@@ -545,7 +545,7 @@ class DropoutWrapper(RNNCell):
     if (not isinstance(self._output_keep_prob, float) or
         self._output_keep_prob < 1):
       output = nn_ops.dropout(output, self._output_keep_prob, seed=self._seed)
-    return output, new_state,iteration_number
+    return output, new_state
 
 
 class EmbeddingWrapper(RNNCell):
@@ -749,3 +749,4 @@ def linear(args, output_size, bias, bias_start=0.0, scope=None):
         "Bias", [output_size],
         initializer=init_ops.constant_initializer(bias_start))
   return res + bias_term
+
