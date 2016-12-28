@@ -18,7 +18,8 @@ class IterativeLayer(tf.nn.rnn_cell.RNNCell):
         self._max_iterations = max_iterations
         self._iterate_prob = tf.constant(iterate_prob)
         self._number_of_iterations_performed = tf.constant(0)
-        tf.histogram_summary(tf.get_variable_scope().name +"/iterations_performed", self._number_of_iterations_performed)
+        if tf.get_variable_scope().reuse is False:
+            tf.histogram_summary("iterations_performed", self._number_of_iterations_performed)
         self._number_of_iterations_built = 0
 
     @property
@@ -38,7 +39,7 @@ class IterativeLayer(tf.nn.rnn_cell.RNNCell):
         return self._internal_nn.state_size
 
     def __call__(self, input, state, scope=None):
-        _ = self.resolve_iteration_activation(input, state, input, state) # TODO: define variables instead of calculate them in order to keep it initilized.
+        #_ = self.resolve_iteration_activation(input, state, input, state) # TODO: define variables instead of calculate them in order to keep it initilized.
 
         output, new_state, self._number_of_iterations_performed = self.resolve_iteration_calculation(input, state, tf.constant(0), scope)
 
@@ -47,8 +48,6 @@ class IterativeLayer(tf.nn.rnn_cell.RNNCell):
     def resolve_iteration_calculation(self, input, state, number_of_iterations_performed, scope):
 
         output, new_state = self._internal_nn(input, state, scope)
-
-        tf.get_variable_scope().reuse_variables()
 
         number_of_iterations_performed += 1
 
@@ -68,6 +67,9 @@ class IterativeLayer(tf.nn.rnn_cell.RNNCell):
 
         iteration_gate_logits = linear([input, old_state, output, new_state], 1, True,
                                        scope=tf.get_variable_scope())
+
+        tf.get_variable_scope().reuse_variables()
+
         iteration_gate_activation = floor(tf.reduce_mean(sigmoid(iteration_gate_logits)) + self._iterate_prob)
 
         self._iterate_prob = self._iterate_prob * self._iterate_prob
