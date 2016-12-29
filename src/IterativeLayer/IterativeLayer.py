@@ -17,14 +17,7 @@ class IterativeLayer(tf.nn.rnn_cell.RNNCell):
         self._internal_nn = internal_nn
         self._max_iterations = max_iterations
         self._iterate_prob = tf.constant(iterate_prob)
-        self._number_of_iterations_performed = tf.constant(0)
-        if tf.get_variable_scope().reuse is False:
-            tf.histogram_summary("iterations_performed", self._number_of_iterations_performed)
         self._number_of_iterations_built = 0
-
-    @property
-    def iterations_made(self):
-        return self._number_of_iterations_performed
 
     @property
     def input_size(self):
@@ -39,39 +32,32 @@ class IterativeLayer(tf.nn.rnn_cell.RNNCell):
         return self._internal_nn.state_size
 
     def __call__(self, input, state, scope=None):
-        #_ = self.resolve_iteration_activation(input, state, input, state) # TODO: define variables instead of calculate them in order to keep it initilized.
-
-        output, new_state, self._number_of_iterations_performed = self.resolve_iteration_calculation(input, state, tf.constant(0), scope)
-
+        should_add_summary = tf.get_variable_scope().reuse is True and self._number_of_iterations_built is 0
+        output, new_state, number_of_iterations_performed = self.resolve_iteration_calculation(input, state, tf.zeros([]), scope)
+        if should_add_summary:
+            tf.histogram_summary("iterations_performed", number_of_iterations_performed,
+                                 name="iterations_performed_summary")
         return output, new_state
 
     def resolve_iteration_calculation(self, input, state, number_of_iterations_performed, scope):
-
         output, new_state = self._internal_nn(input, state, scope)
-
         number_of_iterations_performed += 1
-
         self._number_of_iterations_built += 1
-
         if self._number_of_iterations_built < self._max_iterations:
-            return tf.cond(self.resolve_iteration_activation(input, state, output, new_state),
+            return tf.cond(
+                self.resolve_iteration_activation(input, state, output, new_state),
                            lambda: self.resolve_iteration_calculation(output,
                                                                       new_state,
-                                                                      number_of_iterations_performed,
-                                                                      scope),
+                                                                      number_of_iterations_performed=
+                                                                        number_of_iterations_performed,
+                                                                      scope=scope),
                            lambda: [output, new_state, number_of_iterations_performed])
-        else:
-            return output, new_state, number_of_iterations_performed
+        return output, new_state, number_of_iterations_performed
 
     def resolve_iteration_activation(self, input, old_state, output, new_state):
-
-        iteration_gate_logits = linear([input, old_state, output, new_state], 1, True,
+        iteration_gate_logits = linear([new_state], 1, True,
                                        scope=tf.get_variable_scope())
-
         tf.get_variable_scope().reuse_variables()
-
-        iteration_gate_activation = floor(tf.reduce_mean(sigmoid(iteration_gate_logits)) + self._iterate_prob)
-
+        iteration_gate_activation = floor(tf.reduce_max(sigmoid(iteration_gate_logits)) + self._iterate_prob)
         self._iterate_prob = self._iterate_prob * self._iterate_prob
-
         return tf.equal(iteration_gate_activation, tf.constant(1.))
