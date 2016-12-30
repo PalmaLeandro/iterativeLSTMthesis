@@ -63,7 +63,7 @@ import tensorflow as tf
 
 from tensorflow.models.rnn.ptb import reader
 
-from IterativeLayer import IterativeLayer
+from IterativeCell import IterativeCell
 
 flags = tf.flags
 logging = tf.logging
@@ -100,7 +100,7 @@ class PTBModel(object):
     # Slightly better results can be obtained with forget gate biases
     # initialized to 1 but the hyperparameters of the model would need to be
     # different than reported in the paper.
-    iterative_lstm_cell = IterativeLayer(tf.nn.rnn_cell.BasicLSTMCell(size, forget_bias=0.0))
+    iterative_lstm_cell = IterativeCell(tf.nn.rnn_cell.BasicLSTMCell(size, forget_bias=0.0))
     if is_training and config.keep_prob < 1:
       iterative_lstm_cell = tf.nn.rnn_cell.DropoutWrapper(
         iterative_lstm_cell, output_keep_prob=config.keep_prob)
@@ -277,9 +277,11 @@ def run_epoch(session, m, data, eval_op, verbose=False, summary_op=None, summary
 
     if summary_writer is not None and summaries is not None:
       summary_writer.add_summary(summaries, step)
-
-
-  return np.exp(costs / iters)
+    break
+  perplexity = np.exp(costs / iters)
+  if summary_writer is not None and perplexity is not None:
+    summary_writer.add_summary(tf.scalar_summary("perplexity",tf.constant(perplexity)))
+  return perplexity
 
 
 def get_config():
@@ -322,14 +324,14 @@ def main(_):
 
     with tf.variable_scope("model", reuse=None, initializer=initializer):
       m = PTBModel(is_training=True, config=config)
-      merged_summaries_for_training = tf.merge_all_summaries() # use this operation to merge summaries attached so far
+      #merged_summaries_for_training = tf.merge_all_summaries() # use this operation to merge summaries attached so far
     with tf.variable_scope("model", reuse=True, initializer=initializer):
       mtest = PTBModel(is_training=False, config=eval_config)
       merged_summaries_for_test = tf.merge_all_summaries() # use this operation to merge summaries attached so far
       mvalid = PTBModel(is_training=False, config=config)
-      merged_summaries_for_valid = tf.merge_all_summaries() # use this operation to merge summaries attached so far
+      #merged_summaries_for_valid = tf.merge_all_summaries() # use this operation to merge summaries attached so far
 
-    train_writer = tf.train.SummaryWriter(FLAGS.logdir+"/train", session.graph)
+    #train_writer = tf.train.SummaryWriter(FLAGS.logdir+"/train", session.graph)
     #valid_writer = tf.train.SummaryWriter("./valid", session.graph)
     test_writer = tf.train.SummaryWriter(FLAGS.logdir+"/test", session.graph)
 
@@ -342,7 +344,7 @@ def main(_):
 
       print("Epoch: %d Learning rate: %.3f" % (i + 1, session.run(m.lr)))
       train_perplexity = run_epoch(session, m, train_data, m.train_op,
-                                   verbose=True, summary_op=merged_summaries_for_training, summary_writer=train_writer)
+                                   verbose=True, summary_op=None, summary_writer=None)
       print("Epoch: %d Train Perplexity: %.3f" % (i + 1, train_perplexity))
       valid_perplexity = run_epoch(session, mvalid, valid_data, tf.no_op(), summary_op=None,summary_writer=None)
       print("Epoch: %d Valid Perplexity: %.3f" % (i + 1, valid_perplexity))
