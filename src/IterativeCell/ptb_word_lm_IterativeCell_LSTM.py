@@ -277,10 +277,10 @@ def run_epoch(session, m, data, eval_op, verbose=False, summary_op=None, summary
 
     if summary_writer is not None and summaries is not None:
       summary_writer.add_summary(summaries, step)
-    break
+
   perplexity = np.exp(costs / iters)
   if summary_writer is not None and perplexity is not None:
-    summary_writer.add_summary(tf.scalar_summary("perplexity",tf.constant(perplexity)).eval())
+    summary_writer.add_summary(tf.scalar_summary("perplexity",tf.constant(perplexity)).eval(), epoch_size)
   return perplexity
 
 
