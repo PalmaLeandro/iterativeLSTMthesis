@@ -6,7 +6,7 @@ from tensorflow.python.ops.math_ops import floor
 
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
-    def __init__(self, internal_nn, max_iterations=10, iterate_prob=0.5):
+    def __init__(self, internal_nn, max_iterations=10, iterate_prob=0.75):
         if internal_nn is None:
             raise "You must define an internal NN to iterate"
         if internal_nn.input_size!=internal_nn.output_size:
@@ -53,7 +53,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         new_c = new_c * self._iteration_activations + old_c * (1 - self._iteration_activations)
         output = new_h + input
         new_state_to_next_iteration = array_ops.concat(1, [new_c, old_h])
-        new_state_to_output = array_ops.concat(1, [new_c, new_h])
+        new_state_to_output = array_ops.concat(1, [new_c, output])
         if self._number_of_iterations_built < self._max_iterations:
             self._iteration_activations = self.resolve_iteration_activations(input, state, output, new_state)
             return tf.cond(tf.equal(tf.reduce_max(self._iteration_activations), tf.constant(1.)),
@@ -66,7 +66,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         return output, new_state_to_output, number_of_iterations_performed
 
     def resolve_iteration_activations(self, input, old_state, output, new_state):
-        iteration_gate_logits = linear([input, output], self.output_size, True,
+        iteration_gate_logits = linear([output], self.output_size, True,
                                        scope=tf.get_variable_scope())
         iteration_activations = floor(sigmoid(iteration_gate_logits) + self._iterate_prob)
         return iteration_activations
