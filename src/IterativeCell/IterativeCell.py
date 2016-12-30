@@ -68,5 +68,5 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         iteration_gate_logits = linear([input, output], self.output_size, True,
                                        scope=tf.get_variable_scope())
         iteration_activations = floor(sigmoid(iteration_gate_logits) + self._iterate_prob)
-        #self._iterate_prob *= self._iterate_prob
+        self._iterate_prob *= self._iterate_prob
         return iteration_activations
