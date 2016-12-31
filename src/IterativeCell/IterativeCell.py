@@ -35,7 +35,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
     def __call__(self, input, state, scope=None):
         should_add_summary = tf.get_variable_scope().reuse is True and self._number_of_iterations_built is 0
-        self._iteration_activations = self.resolve_iteration_activations(input, state, input, state)
+        self._iteration_activations = tf.ones(self.resolve_iteration_activations(input, state, input, state).get_shape())
         output, new_state, number_of_iterations_performed = self.resolve_iteration_calculation(input, state, tf.zeros([]), scope)
         if should_add_summary:
             tf.histogram_summary("iterations_performed", number_of_iterations_performed,
@@ -56,7 +56,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         new_state_to_next_iteration = array_ops.concat(1, [new_c, old_h])
         new_state_to_output = array_ops.concat(1, [new_c, output])
         if self._number_of_iterations_built < self._max_iterations:
-            self._iteration_activations = self.resolve_iteration_activations(input, state, output, new_state) * self._iteration_activations
+            self._iteration_activations = self.resolve_iteration_activations(input, state, output, new_state)
             return tf.cond(tf.equal(tf.reduce_max(self._iteration_activations), tf.constant(1.)),
                            lambda: self.resolve_iteration_calculation(input,
                                                                       new_state_to_next_iteration,
