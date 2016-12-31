@@ -40,7 +40,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         if should_add_summary:
             tf.histogram_summary("iterations_performed", number_of_iterations_performed,
                                  name="iterations_performed_summary")
-        return output, new_state
+        return output + input, new_state
 
     def resolve_iteration_calculation(self, input, state, number_of_iterations_performed, scope):
         old_c, old_h = array_ops.split(1, 2, state)
