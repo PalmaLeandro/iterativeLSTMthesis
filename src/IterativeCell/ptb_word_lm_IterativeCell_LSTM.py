@@ -270,18 +270,19 @@ def run_epoch(session, m, data, eval_op, verbose=False, summary_op=None, summary
     costs += cost
     iters += m.num_steps
 
+    perplexity = np.exp(costs / iters)
     if verbose and step % (epoch_size // 10) == 10:
       print("%.3f perplexity: %.3f speed: %.0f wps" %
-            (step * 1.0 / epoch_size, np.exp(costs / iters),
+            (step * 1.0 / epoch_size, perplexity,
              iters * m.batch_size / (time.time() - start_time)))
 
     if summary_writer is not None and summaries is not None:
       summary_writer.add_summary(summaries, step)
 
-  perplexity = np.exp(costs / iters)
-  if summary_writer is not None and perplexity is not None:
-    summary_writer.add_summary(tf.scalar_summary("perplexity",tf.constant(perplexity)).eval(), epoch_size)
-  return perplexity
+    if summary_writer is not None and perplexity is not None:
+      summary_writer.add_summary(tf.scalar_summary("perplexity",tf.constant(perplexity)).eval(), step)
+    
+  return np.exp(costs / iters)
 
 
 def get_config():
@@ -331,8 +332,8 @@ def main(_):
       mvalid = PTBModel(is_training=False, config=config)
       #merged_summaries_for_valid = tf.merge_all_summaries() # use this operation to merge summaries attached so far
 
-    #train_writer = tf.train.SummaryWriter(FLAGS.logdir+"/train", session.graph)
-    #valid_writer = tf.train.SummaryWriter("./valid", session.graph)
+    train_writer = tf.train.SummaryWriter(FLAGS.logdir+"/train", session.graph)
+    valid_writer = tf.train.SummaryWriter("./valid", session.graph)
     test_writer = tf.train.SummaryWriter(FLAGS.logdir+"/test", session.graph)
 
 
@@ -344,9 +345,9 @@ def main(_):
 
       print("Epoch: %d Learning rate: %.3f" % (i + 1, session.run(m.lr)))
       train_perplexity = run_epoch(session, m, train_data, m.train_op,
-                                   verbose=True, summary_op=None, summary_writer=None)
+                                   verbose=True, summary_op=None, summary_writer=train_writer)
       print("Epoch: %d Train Perplexity: %.3f" % (i + 1, train_perplexity))
-      valid_perplexity = run_epoch(session, mvalid, valid_data, tf.no_op(), summary_op=None,summary_writer=None)
+      valid_perplexity = run_epoch(session, mvalid, valid_data, tf.no_op(), summary_op=None,summary_writer=valid_writer)
       print("Epoch: %d Valid Perplexity: %.3f" % (i + 1, valid_perplexity))
 
     test_perplexity = run_epoch(session, mtest, test_data, tf.no_op(), summary_op=merged_summaries_for_test, summary_writer=test_writer)
