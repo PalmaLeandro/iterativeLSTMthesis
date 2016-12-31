@@ -57,7 +57,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         if self._number_of_iterations_built < self._max_iterations:
             self._iteration_activations = self.resolve_iteration_activations(input, state, output, new_state)
             return tf.cond(tf.equal(tf.reduce_max(self._iteration_activations), tf.constant(1.)),
-                           lambda: self.resolve_iteration_calculation(input,
+                           lambda: self.resolve_iteration_calculation(output,
                                                                       new_state_to_next_iteration,
                                                                       number_of_iterations_performed=
                                                                         number_of_iterations_performed,
@@ -69,4 +69,5 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         iteration_gate_logits = linear([output], self.output_size, True,
                                        scope=tf.get_variable_scope())
         iteration_activations = floor(sigmoid(iteration_gate_logits) + self._iterate_prob)
+        self._iterate_prob = tf.pow(self._iterate_prob, 2)
         return iteration_activations
