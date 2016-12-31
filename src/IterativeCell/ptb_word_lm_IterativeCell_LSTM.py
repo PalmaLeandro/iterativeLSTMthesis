@@ -270,18 +270,20 @@ def run_epoch(session, m, data, eval_op, verbose=False, summary_op=None, summary
     costs += cost
     iters += m.num_steps
 
-    perplexity = np.exp(costs / iters)
-    if verbose and step % (epoch_size // 10) == 10:
-      print("%.3f perplexity: %.3f speed: %.0f wps" %
-            (step * 1.0 / epoch_size, perplexity,
-             iters * m.batch_size / (time.time() - start_time)))
+    if step % (epoch_size // 10) == 10:
+      perplexity = np.exp(costs / iters)
+      if verbose:
+        print("%.3f perplexity: %.3f speed: %.0f wps" %
+              (step * 1.0 / epoch_size, perplexity,
+               iters * m.batch_size / (time.time() - start_time)))
+      if summary_writer is not None and perplexity is not None:
+        summary_writer.add_summary(tf.scalar_summary("perplexity",tf.constant(perplexity)).eval(), step)
+
 
     if summary_writer is not None and summaries is not None:
       summary_writer.add_summary(summaries, step)
 
-    if summary_writer is not None and perplexity is not None:
-      summary_writer.add_summary(tf.scalar_summary("perplexity",tf.constant(perplexity)).eval(), step)
-    
+
   return np.exp(costs / iters)
 
 
