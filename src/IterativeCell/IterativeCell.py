@@ -17,8 +17,8 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             raise "iteration_prob must be a value between 0 and 1"
         self._internal_nn = internal_nn
         self._max_iterations = max_iterations
-        self._iterate_prob = iterate_prob
-        self._iterate_prob_decay = iterate_prob_decay
+        self._iterate_prob = tf.Variable(iterate_prob,trainable=False)
+        self._iterate_prob_decay = tf.Variable(iterate_prob_decay,trainable=False)
         self._number_of_iterations_built = 0
 
     @property
@@ -67,7 +67,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         return output, new_state_to_output, number_of_iterations_performed
 
     def resolve_iteration_activations(self, input, old_state, output, new_state):
-        iteration_gate_logits = linear([output], self.output_size, True,
+        iteration_gate_logits = linear([input], self.output_size, True,
                                        scope=tf.get_variable_scope())
         iteration_activations = floor(sigmoid(iteration_gate_logits) + tf.constant(self._iterate_prob))
         self._iterate_prob *= self._iterate_prob_decay
