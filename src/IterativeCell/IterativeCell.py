@@ -56,10 +56,10 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         new_state_to_next_iteration = array_ops.concat(1, [new_c, old_h])
         new_state_to_output = array_ops.concat(1, [new_c, output])
         if self._number_of_iterations_built < self._max_iterations:
-            self._iteration_activations = self.resolve_iteration_activations(input, state, output, new_state)
+            self._iteration_activations = self.resolve_iteration_activations(input, state, output, new_state_to_next_iteration)
             return tf.cond(tf.equal(tf.reduce_max(self._iteration_activations), tf.constant(1.)),
                            lambda: self.resolve_iteration_calculation(input,
-                                                                      new_state_to_output,
+                                                                      new_state_to_next_iteration,
                                                                       number_of_iterations_performed=
                                                                         number_of_iterations_performed,
                                                                       scope=scope),
