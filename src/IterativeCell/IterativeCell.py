@@ -52,7 +52,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
         new_h = new_h * self._iteration_activations + old_h * (1 - self._iteration_activations)
         new_c = new_c * self._iteration_activations + old_c * (1 - self._iteration_activations)
-        output = new_h + input
+        output = new_h
         new_state_to_next_iteration = array_ops.concat(1, [new_c, old_h])
         new_state_to_output = array_ops.concat(1, [new_c, output])
         if self._number_of_iterations_built < self._max_iterations:
