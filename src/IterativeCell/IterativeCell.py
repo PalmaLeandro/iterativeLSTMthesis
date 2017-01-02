@@ -48,7 +48,6 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         iteration_activation_flag = floor(tf.reduce_max(self._iteration_activations) + self._iterate_prob)
         number_of_iterations_performed += iteration_activation_flag
         new_c, new_h = array_ops.split(1, 2, new_state)
-        tf.get_variable_scope().reuse_variables()
         self._number_of_iterations_built += 1
         # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
         output = new_h * self._iteration_activations + input * (1 - self._iteration_activations)
