@@ -66,7 +66,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
                                                                         number_of_iterations_performed,
                                                                       scope=scope),
                            lambda: [output, new_state_to_output, number_of_iterations_performed])
-        return output, new_state_to_output, tf.constant(self._max_iterations)
+        return output, new_state_to_output, tf.constant(self._max_iterations,tf.float32)
 
     def resolve_iteration_activations(self, input, old_state, output, new_state):
         iteration_gate_logits = linear([input, old_state, output, new_state], self.output_size, True,
