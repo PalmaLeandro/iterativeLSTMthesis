@@ -55,7 +55,7 @@ class IterativeLayer(tf.nn.rnn_cell.RNNCell):
         return output, new_state, number_of_iterations_performed
 
     def resolve_iteration_activation(self, input, old_state, output, new_state):
-        iteration_gate_logits = linear([new_state], 1, True,
+        iteration_gate_logits = linear([output], 1, True,
                                        scope=tf.get_variable_scope())
         tf.get_variable_scope().reuse_variables()
         iteration_gate_activation = floor(tf.reduce_max(sigmoid(iteration_gate_logits)) + self._iterate_prob)
