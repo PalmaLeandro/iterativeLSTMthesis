@@ -60,7 +60,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             number_of_iterations_performed += iteration_activation_flag
             self._iteration_activations = self.resolve_iteration_activations(input, state, output, new_state) * self._iteration_activations
             return tf.cond(tf.equal(iteration_activation_flag, tf.constant(1.)),
-                           lambda: self.resolve_iteration_calculation(output,
+                           lambda: self.resolve_iteration_calculation(input,
                                                                       new_state,
                                                                       number_of_iterations_performed=
                                                                         number_of_iterations_performed,
