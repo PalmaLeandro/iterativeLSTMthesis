@@ -38,23 +38,23 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         self._iteration_activations = self.resolve_iteration_activations(input,state,input,state)
         output, new_state, number_of_iterations_performed = self.resolve_iteration_calculation(input, state, tf.zeros([]), scope)
         if should_add_summary:
-            tf.histogram_summary("iterations_performed", number_of_iterations_performed,
+            tf.histogram_summary(tf.get_variable_scope().name+"/iterations_performed", number_of_iterations_performed,
                                  name="iterations_performed_summary")
         return output, new_state
 
     def resolve_iteration_calculation(self, input, state, number_of_iterations_performed, scope):
         self._number_of_iterations_built += 1
 
-        old_c, old_h = array_ops.split(1, 2, state)
+        #old_c, old_h = array_ops.split(1, 2, state)
         output, new_state = self._internal_nn(input, state, scope)
         tf.get_variable_scope().reuse_variables()
-        new_c, new_h = array_ops.split(1, 2, new_state)
+        #new_c, new_h = array_ops.split(1, 2, new_state)
         # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
-        new_h = new_h * self._iteration_activations + old_h * (1 - self._iteration_activations)
-        new_c = new_c * self._iteration_activations + old_c * (1 - self._iteration_activations)
+        #new_h = new_h * self._iteration_activations + old_h * (1 - self._iteration_activations)
+        #new_c = new_c * self._iteration_activations + old_c * (1 - self._iteration_activations)
         #output = output * self._iteration_activations + input * (1 - self._iteration_activations)
         #new_state_to_next_iteration = array_ops.concat(1, [new_c, old_h])
-        new_state = array_ops.concat(1, [new_c, new_h])
+        #new_state = array_ops.concat(1, [new_c, new_h])
         if self._number_of_iterations_built < self._max_iterations:
             iteration_activation_flag = floor(tf.reduce_max(self._iteration_activations) + self._iterate_prob)
             number_of_iterations_performed += iteration_activation_flag

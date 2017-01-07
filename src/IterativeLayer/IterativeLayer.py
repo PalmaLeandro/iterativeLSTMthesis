@@ -58,6 +58,6 @@ class IterativeLayer(tf.nn.rnn_cell.RNNCell):
         iteration_gate_logits = linear([output], 1, True,
                                        scope=tf.get_variable_scope())
         tf.get_variable_scope().reuse_variables()
-        iteration_gate_activation = floor(tf.reduce_max(sigmoid(iteration_gate_logits)) + self._iterate_prob)
+        iteration_gate_activation = floor(sigmoid(iteration_gate_logits) + self._iterate_prob)
         self._iterate_prob *= self._iterate_prob
         return tf.equal(iteration_gate_activation, tf.constant(1.))
