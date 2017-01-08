@@ -6,7 +6,7 @@ from tensorflow.python.ops.math_ops import floor
 
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
-    def __init__(self, internal_nn, max_iterations=10, iterate_prob=0.5, iterate_prob_decay=0.5):
+    def __init__(self, internal_nn, max_iterations=10, iterate_prob=0.5, iterate_prob_decay=0.75):
         if internal_nn is None:
             raise "You must define an internal NN to iterate"
         if internal_nn.input_size!=internal_nn.output_size:
@@ -69,7 +69,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         return output, new_state, tf.constant(self._max_iterations,tf.float32)
 
     def resolve_iteration_activations(self, input, old_state, output, new_state):
-        iteration_gate_logits = linear([input, output], self.output_size, True,
+        iteration_gate_logits = linear([input, new_state], self.output_size, True,
                                        scope=tf.get_variable_scope())
         iteration_activations = sigmoid(iteration_gate_logits)
         self._iterate_prob *= self._iterate_prob_decay
