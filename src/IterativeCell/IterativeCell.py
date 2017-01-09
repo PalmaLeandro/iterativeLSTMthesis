@@ -22,6 +22,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         self._allow_reactivation = allow_cell_reactivation
         self._number_of_iterations_built = 0
         self._iteration_activations = None
+        self._summaries_added = []
 
     @property
     def input_size(self):
@@ -36,12 +37,13 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         return self._internal_nn.state_size
 
     def __call__(self, input, state, scope=None):
-        should_add_summary = tf.get_variable_scope().reuse is True and self._number_of_iterations_built is 0
+        should_add_summary = not self._summaries_added.__contains__(tf.get_variable_scope().name+"/iterations_performed")
         self._iteration_activations = self.resolve_iteration_activations(input,state,input,state)
         output, new_state, number_of_iterations_performed = self.resolve_iteration_calculation(input, state, tf.zeros([]), scope)
         if should_add_summary:
             tf.histogram_summary(tf.get_variable_scope().name+"/iterations_performed", number_of_iterations_performed,
                                  name="iterations_performed_summary")
+            self._summaries_added.append(tf.get_variable_scope().name+"/iterations_performed")
         return output, new_state
 
     def resolve_iteration_calculation(self, input, state, number_of_iterations_performed, scope):
@@ -60,7 +62,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
             number_of_iterations_performed += iteration_activation_flag
 
-            self.resolve_iteration_activations(input, state, output, new_state) * self._iteration_activations
+            self.resolve_iteration_activations(input, state, output, new_state)
 
             return tf.cond(tf.equal(iteration_activation_flag, tf.constant(1.)),
                            lambda: self.resolve_iteration_calculation(output,
