@@ -21,6 +21,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         self._iterate_prob_decay = tf.Variable(iterate_prob_decay,trainable=False)
         self._allow_reactivation = allow_cell_reactivation
         self._number_of_iterations_built = 0
+        self._iteration_activations = None
 
     @property
     def input_size(self):
