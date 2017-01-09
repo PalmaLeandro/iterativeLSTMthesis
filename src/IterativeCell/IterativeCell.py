@@ -51,7 +51,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
         # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
         output = output * self._iteration_activations + input * (1 - self._iteration_activations)
-        new_state_activation_extended = array_ops.concat(1, [self._iteration_activations for dim in range(0, self._internal_nn.output_size)]) #TODO: change to extend vector or concat as function of state size
+        new_state_activation_extended = array_ops.concat(1, [self._iteration_activations, self._iteration_activations]) #TODO: change to extend vector or concat as function of state size
         new_state = new_state * new_state_activation_extended + state * (1 - new_state_activation_extended)
 
         if self._number_of_iterations_built < self._max_iterations:
@@ -82,7 +82,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
     def update_iteration_activations(self, new_iteration_activations):
         # It is possible that other instances of the batch activate this cell, hence we need to avoid this by activate only those activations were this instance of the batch is actually activated
         batch_iteration_activations = tf.reduce_max(new_iteration_activations, 1, True)
-        batch_iteration_activations_extended = array_ops.concat(1, [batch_iteration_activations for dim in range(0, self._internal_nn.output_size)]) #TODO: change to extend vector or concat as function of state size
+        batch_iteration_activations_extended = array_ops.concat(1, [batch_iteration_activations for dim in range(0,self._internal_nn.output_size)]) #TODO: change to extend vector or concat as function of state size
         if self._iteration_activations is None or self._allow_reactivation is True:
             self._iteration_activations = new_iteration_activations * batch_iteration_activations_extended
         else:
