@@ -73,17 +73,17 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
         output = output * current_iteration_activations + input * (1 - current_iteration_activations)
 
-        new_state_activation_extended = array_ops.concat(1, [current_iteration_activations, current_iteration_activations]) #TODO: change to extend vector or concat as function of state size
+        new_state_activation_extended = tf.tile(current_iteration_activations,[1,2])
         new_state = new_state * new_state_activation_extended + state * (1 - new_state_activation_extended)
 
         number_of_iterations_performed += 1
         iteration_activations = self.resolve_iteration_activations(input, state, output, new_state, iterate_prob, current_iteration_activations)
         #output = tf.cond(self.loop_condition()(output, new_state, number_of_iterations_performed, iterate_prob, iteration_activations), lambda: input, lambda: output)
-        iterate_prob = iterate_prob * tf.constant(self._iterate_prob_decay_constant)
+        #iterate_prob = iterate_prob * tf.constant(self._iterate_prob_decay_constant)
         return output, new_state, number_of_iterations_performed, iterate_prob, iteration_activations
 
     def resolve_iteration_activations(self, input, old_state, output, new_state, iterate_prob, current_iteration_activations):
-        iteration_gate_logits = linear([input, new_state], self._internal_nn.output_size, True, scope=tf.get_variable_scope())
+        iteration_gate_logits = linear([input, new_state], self.output_size, True, scope=tf.get_variable_scope())
         tf.get_variable_scope().reuse_variables()
         iteration_activations = sigmoid(iteration_gate_logits)
         return self.update_iteration_activations(current_iteration_activations, iteration_activations)
@@ -91,8 +91,8 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
     def update_iteration_activations(self, current_iteration_activations, new_iteration_activations):
         # It is possible that other instances of the batch activate this cell, hence we need to avoid this by activate only those activations were this instance of the batch is actually activated
         batch_iteration_activations = tf.reduce_max(new_iteration_activations, 1, True)
-        batch_iteration_activations_extended = array_ops.concat(1, [batch_iteration_activations for dim in range(0,self._internal_nn.output_size)]) #TODO: change to extend vector or concat as function of state size
+        batch_iteration_activations_extended = tf.tile(batch_iteration_activations,[1, self.output_size])
         if self._allow_reactivation:
-            return new_iteration_activations #* batch_iteration_activations_extended
+            return new_iteration_activations * batch_iteration_activations_extended
         else:
-            return new_iteration_activations * current_iteration_activations #* batch_iteration_activations_extended
+            return new_iteration_activations * current_iteration_activations * batch_iteration_activations_extended
