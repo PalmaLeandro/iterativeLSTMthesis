@@ -52,8 +52,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             tf.histogram_summary(tf.get_variable_scope().name+"/iterations_performed", number_of_iterations_performed,
                                  name="iterations_performed_summary")
             self._already_added_summaries.append(tf.get_variable_scope().name+"/iterations_performed")
-        c, h = array_ops.split(1, 2, final_state)
-        return h, final_state
+        return final_output, final_state
 
     def loop_condition(self):
         return lambda input, state, iteration_number, iterate_prob, iteration_activations: \
@@ -69,14 +68,15 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         output, new_state = self._internal_nn(input, state)
 
         # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
-        #output = output * current_iteration_activations + input * (1 - current_iteration_activations)
+        output = output * current_iteration_activations + input * (1 - current_iteration_activations)
 
         new_state_activation_extended = array_ops.concat(1, [current_iteration_activations, current_iteration_activations]) #TODO: change to extend vector or concat as function of state size
         new_state = new_state * new_state_activation_extended + state * (1 - new_state_activation_extended)
 
         number_of_iterations_performed += 1
         iteration_activations = self.resolve_iteration_activations(input, state, output, new_state, iterate_prob, current_iteration_activations)
-        return input, new_state, number_of_iterations_performed, iterate_prob, iteration_activations
+        output = tf.cond(self.loop_condition()(output,new_state,number_of_iterations_performed,iterate_prob,iteration_activations),input,output)
+        return output, new_state, number_of_iterations_performed, iterate_prob, iteration_activations
 
     def resolve_iteration_activations(self, input, old_state, output, new_state, iterate_prob, current_iteration_activations):
         iteration_gate_logits = linear([input, output], self._internal_nn.output_size, True, scope=tf.get_variable_scope())
