@@ -93,6 +93,6 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         batch_iteration_activations = tf.reduce_max(new_iteration_activations, 1, True)
         batch_iteration_activations_extended = array_ops.concat(1, [batch_iteration_activations for dim in range(0,self._internal_nn.output_size)]) #TODO: change to extend vector or concat as function of state size
         if self._allow_reactivation:
-            return new_iteration_activations * batch_iteration_activations_extended
+            return new_iteration_activations #* batch_iteration_activations_extended
         else:
-            return new_iteration_activations * current_iteration_activations * batch_iteration_activations_extended
+            return new_iteration_activations * current_iteration_activations #* batch_iteration_activations_extended
