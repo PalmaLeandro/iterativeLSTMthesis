@@ -7,7 +7,7 @@ from tensorflow.python.ops import variable_scope as vs
 
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
-    def __init__(self, internal_nn, max_iterations=10., iterate_prob=0.5, iterate_prob_decay=0.75, allow_cell_reactivation=False, add_summaries=False):
+    def __init__(self, internal_nn, max_iterations=10., iterate_prob=0.5, iterate_prob_decay=0.85, allow_cell_reactivation=True, add_summaries=False):
         if internal_nn is None:
             raise "You must define an internal NN to iterate"
         if internal_nn.input_size!=internal_nn.output_size:
@@ -52,7 +52,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             tf.histogram_summary(tf.get_variable_scope().name+"/iterations_performed", number_of_iterations_performed,
                                  name="iterations_performed_summary")
             self._already_added_summaries.append(tf.get_variable_scope().name+"/iterations_performed")
-            tf.histogram_summary(tf.get_variable_scope().name+"/iterate_prob", number_of_iterations_performed,
+            tf.histogram_summary(tf.get_variable_scope().name+"/iterate_prob", final_iterate_prob,
                                  name="iterate_prob_summary")
             self._already_added_summaries.append(tf.get_variable_scope().name+"/iterate_prob")
         return final_output, final_state
