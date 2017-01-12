@@ -41,8 +41,8 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         loop_variables = [input,                                             # previous layer output
                           state,                                             # last cell's state
                           tf.constant(0.0),                                  # number of the current iteration
-                          tf.constant(self._initial_iterate_prob_constant),    # initial iteration probability
-                          tf.ones(input.get_shape())]                        # calculation of the first iteration's activation
+                          tf.constant(self._iterate_prob_decay_constant),    # initial iteration probability
+                          tf.ones([input.get_shape()[0],input.get_shape()[1]])]                        # calculation of the first iteration's activation
         final_output, \
         final_state, \
         number_of_iterations_performed, \
