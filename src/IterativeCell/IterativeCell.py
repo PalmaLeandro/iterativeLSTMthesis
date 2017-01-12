@@ -7,7 +7,7 @@ from tensorflow.python.ops import variable_scope as vs
 
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
-    def __init__(self, internal_nn, max_iterations=10., iterate_prob=0.5, iterate_prob_decay=0.85, allow_cell_reactivation=True, add_summaries=False):
+    def __init__(self, internal_nn, max_iterations=10., iterate_prob=0.5, iterate_prob_decay=0.5, allow_cell_reactivation=True, add_summaries=False):
         if internal_nn is None:
             raise "You must define an internal NN to iterate"
         if internal_nn.input_size!=internal_nn.output_size:
@@ -79,13 +79,13 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         number_of_iterations_performed += 1
         iteration_activations = self.resolve_iteration_activations(input, state, output, new_state, iterate_prob, current_iteration_activations)
         #output = tf.cond(self.loop_condition()(output, new_state, number_of_iterations_performed, iterate_prob, iteration_activations), lambda: input, lambda: output)
+        iterate_prob = iterate_prob * tf.constant(self._iterate_prob_decay_constant)
         return output, new_state, number_of_iterations_performed, iterate_prob, iteration_activations
 
     def resolve_iteration_activations(self, input, old_state, output, new_state, iterate_prob, current_iteration_activations):
         iteration_gate_logits = linear([input, new_state], self._internal_nn.output_size, True, scope=tf.get_variable_scope())
         tf.get_variable_scope().reuse_variables()
         iteration_activations = sigmoid(iteration_gate_logits)
-        iterate_prob *= tf.constant(self._iterate_prob_decay_constant)
         return self.update_iteration_activations(current_iteration_activations, iteration_activations)
 
     def update_iteration_activations(self, current_iteration_activations, new_iteration_activations):
