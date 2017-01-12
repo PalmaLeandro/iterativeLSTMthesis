@@ -100,7 +100,7 @@ class PTBModel(object):
     # Slightly better results can be obtained with forget gate biases
     # initialized to 1 but the hyperparameters of the model would need to be
     # different than reported in the paper.
-    iterative_lstm_cell = IterativeCell(tf.nn.rnn_cell.BasicLSTMCell(size, forget_bias=0.0))
+    iterative_lstm_cell = IterativeCell(tf.nn.rnn_cell.BasicLSTMCell(size, forget_bias=0.0),add_summaries= not is_training)
     if is_training and config.keep_prob < 1:
       iterative_lstm_cell = tf.nn.rnn_cell.DropoutWrapper(
         iterative_lstm_cell, output_keep_prob=config.keep_prob)
@@ -282,7 +282,7 @@ def run_epoch(session, m, data, eval_op, verbose=False, summary_op=None, summary
 
     if summary_writer is not None and summaries is not None:
       summary_writer.add_summary(summaries, step)
-    break
+
 
 
   return np.exp(costs / iters)
