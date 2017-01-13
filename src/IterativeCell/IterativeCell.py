@@ -96,7 +96,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
     def update_iteration_activations(self, current_iteration_activations, new_iteration_activations, iterate_prob):
         # It is possible that other instances of the batch activate this cell, hence we need to avoid this by activate only those activations were this instance of the batch is actually activated
-        batch_iteration_activations = tf.floor(tf.reduce_max(new_iteration_activations, 1, True) + iterate_prob)
+        batch_iteration_activations = tf.floor(tf.reduce_max(current_iteration_activations, 1, True) + iterate_prob)
         batch_iteration_activations_extended = tf.tile(batch_iteration_activations,[1, self.output_size])
 
         if self._allow_reactivation:
