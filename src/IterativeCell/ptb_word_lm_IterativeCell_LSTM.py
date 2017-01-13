@@ -239,7 +239,7 @@ class TestConfig(object):
   init_scale = 0.1
   learning_rate = 1.0
   max_grad_norm = 1
-  num_layers = 1
+  num_layers = 2 # TODO: revert
   num_steps = 2
   hidden_size = 2
   max_epoch = 1
