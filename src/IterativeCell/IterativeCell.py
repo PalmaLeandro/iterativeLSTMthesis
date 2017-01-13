@@ -69,6 +69,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
     def resolve_iteration_calculation(self, input, state, number_of_iterations_performed, iterate_prob, current_iteration_activations):
         output, new_state = self._internal_nn(input, state)
+        tf.get_variable_scope().reuse_variables()
 
         # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
         output = output * current_iteration_activations + input * (1 - current_iteration_activations)
@@ -84,7 +85,6 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
     def resolve_iteration_activations(self, input, old_state, output, new_state, iterate_prob, current_iteration_activations):
         iteration_gate_logits = linear([output], self.output_size, True, scope=tf.get_variable_scope())
-        tf.get_variable_scope().reuse_variables()
         iteration_activations = sigmoid(iteration_gate_logits)
         return self.update_iteration_activations(current_iteration_activations, iteration_activations, iterate_prob)
 
