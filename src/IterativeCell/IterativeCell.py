@@ -64,7 +64,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
     def loop_condition(self):
         return lambda input, state, iteration_number, iterate_prob, iteration_activations: \
             tf.logical_and(tf.equal(tf.reduce_max(iteration_activations), tf.constant(1.)),
-                              tf.less(iteration_number, tf.constant(self._max_iteration_constant)))
+                              tf.less(tf.reduce_max(iteration_number), tf.constant(self._max_iteration_constant)))
 
     def loop_body(self):
         return lambda input, state, iteration_number, iterate_prob, iteration_activations: \
