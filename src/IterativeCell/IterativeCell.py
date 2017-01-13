@@ -1,3 +1,5 @@
+from pexpect.expect import searcher_re
+
 import tensorflow as tf
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops.rnn_cell import linear
@@ -7,7 +9,7 @@ from tensorflow.python.ops import variable_scope as vs
 
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
-    def __init__(self, internal_nn, max_iterations=10., iterate_prob=0.5, iterate_prob_decay=0.75, allow_cell_reactivation=True, add_summaries=False):
+    def __init__(self, internal_nn, max_iterations=10, iterate_prob=0.5, iterate_prob_decay=0.75, allow_cell_reactivation=True, add_summaries=False):
         if internal_nn is None:
             raise "You must define an internal NN to iterate"
         if internal_nn.input_size!=internal_nn.output_size:
@@ -40,9 +42,9 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
     def __call__(self, input, state, scope=None):
         loop_variables = [input,                                             # previous layer output
                           state,                                             # last cell's state
-                          tf.constant(0.0),                                  # number of the current iteration
-                          tf.constant(self._iterate_prob_decay_constant),    # initial iteration probability
-                          tf.ones([input.get_shape()[0],input.get_shape()[1]])]                        # calculation of the first iteration's activation
+                          tf.constant(0),                                  # number of the current iteration
+                          tf.constant(self._initial_iterate_prob_constant),    # initial iteration probability
+                          self.resolve_iteration_activations(input, state, input, state, tf.constant(self._initial_iterate_prob_constant), tf.ones([input.get_shape()[0],input.get_shape()[1]]))]                        # calculation of the first iteration's activation
         final_output, \
         final_state, \
         number_of_iterations_performed, \
@@ -76,7 +78,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
         number_of_iterations_performed += 1
         iteration_activations = self.resolve_iteration_activations(input, state, output, new_state, iterate_prob, current_iteration_activations)
-        #output = tf.cond(self.loop_condition()(output, new_state, number_of_iterations_performed, iterate_prob, iteration_activations), lambda: input, lambda: output)
+        output = tf.cond(self.loop_condition()(output, new_state, number_of_iterations_performed, iterate_prob, iteration_activations), lambda: input, lambda: output)
         iterate_prob = iterate_prob * tf.constant(self._iterate_prob_decay_constant)
         return output, new_state, number_of_iterations_performed, iterate_prob, iteration_activations
 
