@@ -9,7 +9,7 @@ from tensorflow.python.ops import variable_scope as vs
 
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
-    def __init__(self, internal_nn, max_iterations=10., iterate_prob=0.5, iterate_prob_decay=0.5, allow_cell_reactivation=True, add_summaries=False):
+    def __init__(self, internal_nn, max_iterations=10., iterate_prob=0.5, iterate_prob_decay=0.5, allow_cell_reactivation=False, add_summaries=False):
         if internal_nn is None:
             raise "You must define an internal NN to iterate"
         if internal_nn.input_size!=internal_nn.output_size:
