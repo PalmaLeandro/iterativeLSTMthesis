@@ -9,7 +9,7 @@ from tensorflow.python.ops import variable_scope as vs
 
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
-    def __init__(self, internal_nn, max_iterations=10., iterate_prob=0.5, iterate_prob_decay=0.5, allow_cell_reactivation=True, add_summaries=False):
+    def __init__(self, internal_nn, max_iterations=10., iterate_prob=0.5, iterate_prob_decay=0.5, allow_cell_reactivation=False, add_summaries=False):
         if internal_nn is None:
             raise "You must define an internal NN to iterate"
         if internal_nn.input_size!=internal_nn.output_size:
@@ -87,7 +87,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         return output, new_state, number_of_iterations_performed, new_iterate_prob, iteration_activations
 
     def resolve_iteration_activations(self, input, old_state, output, new_state, iterate_prob, current_iteration_activations):
-        iteration_gate_logits = linear([input, old_state, output, new_state], self.output_size, True, scope=tf.get_variable_scope())
+        iteration_gate_logits = linear([input, new_state], self.output_size, True, scope=tf.get_variable_scope())
         tf.get_variable_scope().reuse_variables()
 
         #iteration_activations = sigmoid(iteration_gate_logits)
