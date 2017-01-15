@@ -44,7 +44,12 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
                           state,                                                    # last cell's state
                           tf.zeros([input.get_shape()[0],input.get_shape()[1]]),    # number of the current iteration
                           tf.constant(self._initial_iterate_prob_constant),         # initial iteration probability
-                          tf.ones([input.get_shape()[0],input.get_shape()[1]])]     # calculation of the first iteration's activation
+                          self.resolve_iteration_activations(input,                 # calculation of the first iteration's activation
+                                                             state,
+                                                             input,
+                                                             state,
+                                                             tf.constant(self._initial_iterate_prob_constant),
+                                                             tf.ones([input.get_shape()[0],input.get_shape()[1]]))]
         final_output, \
         final_state, \
         number_of_iterations_performed, \
@@ -73,6 +78,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
     def resolve_iteration_calculation(self, input, state, number_of_iterations_performed, iterate_prob, current_iteration_activations):
         output, new_state = self._internal_nn(input, state)
+        tf.get_variable_scope().reuse_variables()
 
         # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
         output = output * current_iteration_activations + input * (1 - current_iteration_activations)
@@ -88,7 +94,6 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
     def resolve_iteration_activations(self, input, old_state, output, new_state, iterate_prob, current_iteration_activations):
         iteration_gate_logits = linear([new_state], self.output_size, True, scope=tf.get_variable_scope())
-        tf.get_variable_scope().reuse_variables()
 
         #iteration_activations = sigmoid(iteration_gate_logits)
         iteration_activations = tf.floor(sigmoid(iteration_gate_logits) + iterate_prob)
