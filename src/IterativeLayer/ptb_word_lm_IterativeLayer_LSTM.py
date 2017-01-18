@@ -315,6 +315,12 @@ def main(_):
   if tf.gfile.Exists(FLAGS.logdir+"/test") and FLAGS.erase is True:
     tf.gfile.DeleteRecursively(FLAGS.logdir+"/test")
   tf.gfile.MakeDirs(FLAGS.logdir+"/test")
+  if FLAGS.exportmodeldir is not None and tf.gfile.Exists(FLAGS.exportmodeldir) and FLAGS.erase is True:
+    tf.gfile.DeleteRecursively(FLAGS.exportmodeldir)
+  tf.gfile.MakeDirs(FLAGS.exportmodeldir)
+  if FLAGS.importmodeldir is not None and tf.gfile.Exists(FLAGS.importmodeldir) and FLAGS.erase is True:
+    tf.gfile.DeleteRecursively(FLAGS.importmodeldir)
+  tf.gfile.MakeDirs(FLAGS.importmodeldir)
 
   raw_data = reader.ptb_raw_data(FLAGS.data_path)
   train_data, valid_data, test_data, _ = raw_data
