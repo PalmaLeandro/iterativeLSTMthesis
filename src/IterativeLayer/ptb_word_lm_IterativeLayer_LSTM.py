@@ -82,6 +82,14 @@ flags.DEFINE_boolean(
     "erase", False,
     "An option to erase summaries in the logdir.")
 
+flags.DEFINE_string(
+    "importmodeldir", "./",
+    "A directory to look for an existing model and load it. By default current directory is selected.")
+
+flags.DEFINE_string(
+    "exportmodeldir", "./",
+    "A directory to place the existing model by saving it. By default current directory is selected.")
+
 FLAGS = flags.FLAGS
 
 
@@ -333,9 +341,13 @@ def main(_):
     #valid_writer = tf.train.SummaryWriter("./valid", session.graph)
     test_writer = tf.train.SummaryWriter(FLAGS.logdir+"/test", session.graph)
 
+    saver = tf.train.Saver()
+    if FLAGS.importmodeldir is not None:
+      new_saver = tf.train.import_meta_graph(FLAGS.importmodeldir)
+      new_saver.restore(session, tf.train.latest_checkpoint('./'))
+    else:
+      tf.initialize_all_variables().run()
 
-
-    tf.initialize_all_variables().run()
     for i in range(config.max_max_epoch):
       lr_decay = config.lr_decay ** max(i - config.max_epoch, 0.0)
       m.assign_lr(session, config.learning_rate * lr_decay)
@@ -346,7 +358,8 @@ def main(_):
       print("Epoch: %d Train Perplexity: %.3f" % (i + 1, train_perplexity))
       valid_perplexity = run_epoch(session, mvalid, valid_data, tf.no_op(), summary_op=None,summary_writer=None)
       print("Epoch: %d Valid Perplexity: %.3f" % (i + 1, valid_perplexity))
-
+      if FLAGS.exportmodeldir is not None:
+        saver.save(session,FLAGS.exportmodeldir)
     test_perplexity = run_epoch(session, mtest, test_data, tf.no_op(), summary_op=merged_summaries_for_test, summary_writer=test_writer)
     print("Test Perplexity: %.3f" % test_perplexity)
 
