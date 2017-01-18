@@ -370,5 +370,6 @@ def main(_):
     print("Test Perplexity: %.3f" % test_perplexity)
 
 
+
 if __name__ == "__main__":
   tf.app.run()
