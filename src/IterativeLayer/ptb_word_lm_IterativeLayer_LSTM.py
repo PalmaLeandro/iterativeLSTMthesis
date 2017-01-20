@@ -286,7 +286,6 @@ def run_epoch(session, m, data, eval_op, verbose=False, summary_op=None, summary
     if summary_writer is not None and summaries is not None:
       summary_writer.add_summary(summaries, step)
 
-
   return np.exp(costs / iters)
 
 
@@ -315,12 +314,10 @@ def main(_):
   if tf.gfile.Exists(FLAGS.logdir+"/test") and FLAGS.erase is True:
     tf.gfile.DeleteRecursively(FLAGS.logdir+"/test")
   tf.gfile.MakeDirs(FLAGS.logdir+"/test")
-  if FLAGS.exportmodeldir is not None and tf.gfile.Exists(FLAGS.exportmodeldir) and FLAGS.erase is True:
-    tf.gfile.DeleteRecursively(FLAGS.exportmodeldir)
-  tf.gfile.MakeDirs(FLAGS.exportmodeldir)
-  if FLAGS.importmodeldir is not None and tf.gfile.Exists(FLAGS.importmodeldir) and FLAGS.erase is True:
-    tf.gfile.DeleteRecursively(FLAGS.importmodeldir)
-  tf.gfile.MakeDirs(FLAGS.importmodeldir)
+  if FLAGS.exportmodeldir is not None and tf.gfile.Exists(FLAGS.exportmodeldir+"/model/IterativeCellModelExport") and FLAGS.erase is True:
+    tf.gfile.DeleteRecursively(FLAGS.exportmodeldir+"/model")
+  tf.gfile.MakeDirs(FLAGS.exportmodeldir+"/model")
+
 
   raw_data = reader.ptb_raw_data(FLAGS.data_path)
   train_data, valid_data, test_data, _ = raw_data
@@ -349,8 +346,14 @@ def main(_):
 
     saver = tf.train.Saver()
     if FLAGS.importmodeldir is not None:
-      new_saver = tf.train.import_meta_graph(FLAGS.importmodeldir)
-      new_saver.restore(session, tf.train.latest_checkpoint('./'))
+
+      try:
+        new_saver = tf.train.import_meta_graph(FLAGS.importmodeldir)
+        new_saver.restore(session, tf.train.latest_checkpoint('./'))
+      except (KeyboardInterrupt, SystemExit):
+        raise
+      except:
+        tf.no_op()
     else:
       tf.initialize_all_variables().run()
 
@@ -365,7 +368,7 @@ def main(_):
       valid_perplexity = run_epoch(session, mvalid, valid_data, tf.no_op(), summary_op=None,summary_writer=None)
       print("Epoch: %d Valid Perplexity: %.3f" % (i + 1, valid_perplexity))
       if FLAGS.exportmodeldir is not None:
-        saver.save(session,FLAGS.exportmodeldir)
+        saver.save(session,FLAGS.exportmodeldir+"/model/IterativeCellModelExport")
     test_perplexity = run_epoch(session, mtest, test_data, tf.no_op(), summary_op=merged_summaries_for_test, summary_writer=test_writer)
     print("Test Perplexity: %.3f" % test_perplexity)
 
