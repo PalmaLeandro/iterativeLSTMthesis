@@ -15,5 +15,7 @@ sudo git commit -m "\"$2\""
 
 if [ "$#" -eq 4 ];then
 	sudo python $3 --data_path=`pwd`/data/simple-examples/data/ --model $4 --logdir `pwd`/logs/$2 --erase --exportmodeldir `pwd`/model/$2 
+fi
 if [ "$#" -eq 5 ];then
 	sudo python $3 --data_path=`pwd`/data/simple-examples/data/ --model $4 --logdir `pwd`/logs/$2 --erase --exportmodeldir `pwd`/model/$2  --importmodeldir $5
+fi
