@@ -343,6 +343,7 @@ def main(_):
       # Import a model instance
 
       # Find last executed epoch
+
       from glob import glob
       history = list(map(lambda x: int(x.split('-')[1][:-5]), glob(FLAGS.importmodeldir+'/model/model.ckpt-*.meta')))
       last_epoch = np.max(history)
