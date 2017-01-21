@@ -250,7 +250,7 @@ class TestConfig(object):
   num_layers = 1
   num_steps = 2
   hidden_size = 2
-  max_epoch = 2# TODO: revert
+  max_epoch = 1
   max_max_epoch = 1
   keep_prob = 1.0
   lr_decay = 0.5
@@ -290,8 +290,6 @@ def run_epoch(session, m, data, eval_op, verbose=False, summary_op=None, summary
 
     if summary_writer is not None and summaries is not None:
       summary_writer.add_summary(summaries, step)
-    break
-
 
   return np.exp(costs / iters)
 
@@ -348,11 +346,20 @@ def main(_):
       from glob import glob
       history = list(map(lambda x: int(x.split('-')[1][:-5]), glob(FLAGS.importmodeldir+'/model/model.ckpt-*.meta')))
       last_epoch = np.max(history)
-      # Instantiate saver object using previously saved meta-graph
-      saver = tf.train.import_meta_graph(FLAGS.importmodeldir+'/model/model.ckpt-{}.meta'.format(last_epoch))
-      saver.restore(session, FLAGS.importmodeldir+'/model/model.ckpt-{}'.format(last_epoch))
-      initial_epoch = last_epoch + 1
 
+      # Recreate model
+      with tf.variable_scope("model", reuse=None):
+        m = PTBModel(is_training=True, config=config)
+        # merged_summaries_for_training = tf.merge_all_summaries() # use this operation to merge summaries attached so far
+      with tf.variable_scope("model", reuse=True):
+        mtest = PTBModel(is_training=False, config=eval_config)
+        merged_summaries_for_test = tf.merge_all_summaries()  # use this operation to merge summaries attached so far
+        mvalid = PTBModel(is_training=False, config=config)
+        # merged_summaries_for_valid = tf.merge_all_summaries() # use this operation to merge summaries attached so far
+
+      # Fill model variables with trained values
+      tf.train.Saver().restore(session, FLAGS.importmodeldir+'/model/model.ckpt-{}'.format(last_epoch))
+      initial_epoch = last_epoch + 1
     else:
       # Create a model instance
 
@@ -361,12 +368,12 @@ def main(_):
 
       with tf.variable_scope("model", reuse=None, initializer=initializer):
         m = PTBModel(is_training=True, config=config)
-        #merged_summaries_for_training = tf.merge_all_summaries() # use this operation to merge summaries attached so far
+        # merged_summaries_for_training = tf.merge_all_summaries() # use this operation to merge summaries attached so far
       with tf.variable_scope("model", reuse=True, initializer=initializer):
         mtest = PTBModel(is_training=False, config=eval_config)
-        merged_summaries_for_test = tf.merge_all_summaries() # use this operation to merge summaries attached so far
+        merged_summaries_for_test = tf.merge_all_summaries()  # use this operation to merge summaries attached so far
         mvalid = PTBModel(is_training=False, config=config)
-        #merged_summaries_for_valid = tf.merge_all_summaries() # use this operation to merge summaries attached so far
+        # merged_summaries_for_valid = tf.merge_all_summaries() # use this operation to merge summaries attached so far
       tf.initialize_all_variables().run()
       initial_epoch = 0
 
@@ -374,7 +381,7 @@ def main(_):
     init_model_persistance()
 
     train_writer = tf.train.SummaryWriter(FLAGS.logdir + "/train", session.graph)
-    valid_writer = tf.train.SummaryWriter("./valid", session.graph)
+    valid_writer = tf.train.SummaryWriter(FLAGS.logdir + "./valid", session.graph)
     test_writer = tf.train.SummaryWriter(FLAGS.logdir + "/test", session.graph)
 
     for i in range(initial_epoch, config.max_max_epoch):
@@ -390,6 +397,8 @@ def main(_):
       if FLAGS.exportmodeldir is not None:
         tf.train.Saver().save(session,FLAGS.exportmodeldir+"/model/model.ckpt",global_step=i)
     test_perplexity = run_epoch(session, mtest, test_data, tf.no_op(), summary_op=merged_summaries_for_test, summary_writer=test_writer)
+    if FLAGS.exportmodeldir is not None:
+      tf.train.Saver().save(session,FLAGS.exportmodeldir+"/model/model.ckpt",global_step=config.max_max_epoch)
     print("Test Perplexity: %.3f" % test_perplexity)
 
 
