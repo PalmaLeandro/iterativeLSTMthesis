@@ -309,21 +309,31 @@ def get_config():
     raise ValueError("Invalid model: %s", FLAGS.model)
 
 
+def init_dir(dir_path):
+  if tf.gfile.Exists(dir_path) and FLAGS.erase is True:
+    tf.gfile.DeleteRecursively(dir_path)
+  tf.gfile.MakeDirs(dir_path)
+
+
+def init_logs():
+  if FLAGS.logdir is not None:
+    init_dir(FLAGS.logdir + "/train")
+    #init_dir(FLAGS.logdir + "/valid")
+    init_dir(FLAGS.logdir + "/test")
+
+
+def init_model_persistance():
+  if FLAGS.exportmodeldir is not None:
+    init_dir(FLAGS.exportmodeldir + "/model")
+
+
+
 def main(_):
   if not FLAGS.data_path:
     raise ValueError("Must set --data_path to PTB data directory")
-  if tf.gfile.Exists(FLAGS.logdir+"/train") and FLAGS.erase is True:
-    tf.gfile.DeleteRecursively(FLAGS.logdir+"/train")
-  tf.gfile.MakeDirs(FLAGS.logdir+"/train")
-  if tf.gfile.Exists(FLAGS.logdir+"/valid") and FLAGS.erase is True:
-    tf.gfile.DeleteRecursively(FLAGS.logdir+"/valid")
-  tf.gfile.MakeDirs(FLAGS.logdir+"/valid")
-  if tf.gfile.Exists(FLAGS.logdir+"/test") and FLAGS.erase is True:
-    tf.gfile.DeleteRecursively(FLAGS.logdir+"/test")
-  tf.gfile.MakeDirs(FLAGS.logdir+"/test")
-  if FLAGS.exportmodeldir is not None and tf.gfile.Exists(FLAGS.exportmodeldir+"/model/IterativeCellModelExport") and FLAGS.erase is True:
-    tf.gfile.DeleteRecursively(FLAGS.exportmodeldir+"/model")
-  tf.gfile.MakeDirs(FLAGS.exportmodeldir+"/model")
+
+  init_logs()
+  init_model_persistance()
 
   raw_data = reader.ptb_raw_data(FLAGS.data_path)
   train_data, valid_data, test_data, _ = raw_data
@@ -351,17 +361,19 @@ def main(_):
     test_writer = tf.train.SummaryWriter(FLAGS.logdir+"/test", session.graph)
 
     if FLAGS.importmodeldir is not None:
-      try:
-        new_saver = tf.train.import_meta_graph(FLAGS.importmodeldir)
-        new_saver.restore(session, tf.train.latest_checkpoint('./'))
-      except (KeyboardInterrupt, SystemExit):
-        raise
-      except:
-        tf.no_op()
+      # Find last executed epoch
+      from glob import glob
+      history = list(map(lambda x: int(x.split('-')[1][:-5]), glob('model.ckpt-*.meta')))
+      last_epoch = np.max(history)
+      # Instantiate saver object using previously saved meta-graph
+      saver = tf.train.import_meta_graph('model.ckpt-{}.meta'.format(last_epoch))
+      saver.restore(session, tf.train.latest_checkpoint('./'))
+      initial_epoch = last_epoch + 1
     else:
       tf.initialize_all_variables().run()
+      initial_epoch = 0
 
-    for i in range(config.max_max_epoch):
+    for i in range(initial_epoch, config.max_max_epoch):
       lr_decay = config.lr_decay ** max(i - config.max_epoch, 0.0)
       m.assign_lr(session, config.learning_rate * lr_decay)
 
@@ -372,7 +384,7 @@ def main(_):
       valid_perplexity = run_epoch(session, mvalid, valid_data, tf.no_op(), summary_op=None,summary_writer=None)
       print("Epoch: %d Valid Perplexity: %.3f" % (i + 1, valid_perplexity))
       if FLAGS.exportmodeldir is not None:
-        new_saver.save(session,FLAGS.exportmodeldir+"/model/IterativeCellModelExport")
+        tf.train.Saver().save(session,FLAGS.exportmodeldir+"/model/model.ckpt",global_step=i)
     test_perplexity = run_epoch(session, mtest, test_data, tf.no_op(), summary_op=merged_summaries_for_test, summary_writer=test_writer)
     print("Test Perplexity: %.3f" % test_perplexity)
 
