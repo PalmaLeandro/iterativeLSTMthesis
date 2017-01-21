@@ -83,8 +83,8 @@ flags.DEFINE_boolean(
     "An option to erase summaries in the logdir.")
 
 flags.DEFINE_string(
-    "importmodeldir", "./",
-    "A directory to look for an existing model and load it. By default current directory is selected.")
+    "importmodeldir", None,
+    "A directory to look for an existing model and load it. By default none directory is selected.")
 
 flags.DEFINE_string(
     "exportmodeldir", "./",
@@ -247,10 +247,10 @@ class TestConfig(object):
   init_scale = 0.1
   learning_rate = 1.0
   max_grad_norm = 1
-  num_layers = 1 # TODO: revert
+  num_layers = 1
   num_steps = 2
   hidden_size = 2
-  max_epoch = 1
+  max_epoch = 2# TODO: revert
   max_max_epoch = 1
   keep_prob = 1.0
   lr_decay = 0.5
@@ -290,7 +290,7 @@ def run_epoch(session, m, data, eval_op, verbose=False, summary_op=None, summary
 
     if summary_writer is not None and summaries is not None:
       summary_writer.add_summary(summaries, step)
-
+    break
 
 
   return np.exp(costs / iters)
@@ -327,13 +327,9 @@ def init_model_persistance():
     init_dir(FLAGS.exportmodeldir + "/model")
 
 
-
 def main(_):
   if not FLAGS.data_path:
     raise ValueError("Must set --data_path to PTB data directory")
-
-  init_logs()
-  init_model_persistance()
 
   raw_data = reader.ptb_raw_data(FLAGS.data_path)
   train_data, valid_data, test_data, _ = raw_data
@@ -344,34 +340,42 @@ def main(_):
   eval_config.num_steps = 1
 
   with tf.Graph().as_default(), tf.Session() as session:
-    initializer = tf.random_uniform_initializer(-config.init_scale,
-                                                config.init_scale)
-
-    with tf.variable_scope("model", reuse=None, initializer=initializer):
-      m = PTBModel(is_training=True, config=config)
-      #merged_summaries_for_training = tf.merge_all_summaries() # use this operation to merge summaries attached so far
-    with tf.variable_scope("model", reuse=True, initializer=initializer):
-      mtest = PTBModel(is_training=False, config=eval_config)
-      merged_summaries_for_test = tf.merge_all_summaries() # use this operation to merge summaries attached so far
-      mvalid = PTBModel(is_training=False, config=config)
-      #merged_summaries_for_valid = tf.merge_all_summaries() # use this operation to merge summaries attached so far
-
-    train_writer = tf.train.SummaryWriter(FLAGS.logdir+"/train", session.graph)
-    valid_writer = tf.train.SummaryWriter("./valid", session.graph)
-    test_writer = tf.train.SummaryWriter(FLAGS.logdir+"/test", session.graph)
 
     if FLAGS.importmodeldir is not None:
+      # Import a model instance
+
       # Find last executed epoch
       from glob import glob
-      history = list(map(lambda x: int(x.split('-')[1][:-5]), glob('model.ckpt-*.meta')))
+      history = list(map(lambda x: int(x.split('-')[1][:-5]), glob(FLAGS.importmodeldir+'/model/model.ckpt-*.meta')))
       last_epoch = np.max(history)
       # Instantiate saver object using previously saved meta-graph
-      saver = tf.train.import_meta_graph('model.ckpt-{}.meta'.format(last_epoch))
-      saver.restore(session, tf.train.latest_checkpoint('./'))
+      saver = tf.train.import_meta_graph(FLAGS.importmodeldir+'/model/model.ckpt-{}.meta'.format(last_epoch))
+      saver.restore(session, FLAGS.importmodeldir+'/model/model.ckpt-{}'.format(last_epoch))
       initial_epoch = last_epoch + 1
+
     else:
+      # Create a model instance
+
+      initializer = tf.random_uniform_initializer(-config.init_scale,
+                                                  config.init_scale)
+
+      with tf.variable_scope("model", reuse=None, initializer=initializer):
+        m = PTBModel(is_training=True, config=config)
+        #merged_summaries_for_training = tf.merge_all_summaries() # use this operation to merge summaries attached so far
+      with tf.variable_scope("model", reuse=True, initializer=initializer):
+        mtest = PTBModel(is_training=False, config=eval_config)
+        merged_summaries_for_test = tf.merge_all_summaries() # use this operation to merge summaries attached so far
+        mvalid = PTBModel(is_training=False, config=config)
+        #merged_summaries_for_valid = tf.merge_all_summaries() # use this operation to merge summaries attached so far
       tf.initialize_all_variables().run()
       initial_epoch = 0
+
+    init_logs()
+    init_model_persistance()
+
+    train_writer = tf.train.SummaryWriter(FLAGS.logdir + "/train", session.graph)
+    valid_writer = tf.train.SummaryWriter("./valid", session.graph)
+    test_writer = tf.train.SummaryWriter(FLAGS.logdir + "/test", session.graph)
 
     for i in range(initial_epoch, config.max_max_epoch):
       lr_decay = config.lr_decay ** max(i - config.max_epoch, 0.0)

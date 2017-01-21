@@ -368,7 +368,7 @@ def main(_):
       valid_perplexity = run_epoch(session, mvalid, valid_data, tf.no_op(), summary_op=None,summary_writer=None)
       print("Epoch: %d Valid Perplexity: %.3f" % (i + 1, valid_perplexity))
       if FLAGS.exportmodeldir is not None:
-        saver.save(session,FLAGS.exportmodeldir+"/model/IterativeCellModelExport")
+        saver.save(session,FLAGS.exportmodeldir+"/model/model")
     test_perplexity = run_epoch(session, mtest, test_data, tf.no_op(), summary_op=merged_summaries_for_test, summary_writer=test_writer)
     print("Test Perplexity: %.3f" % test_perplexity)
 
