@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/leandro/Documents/Repositories/iterativeLSTM/model/IC_noresidual_activationfrominputnewstate_updateTOTALLYinputstate_decayingPOW2probactivation0.5_nobatchreactivation_medium/model/model.ckpt-0"
+all_model_checkpoint_paths: "/home/leandro/Documents/Repositories/iterativeLSTM/model/IC_noresidual_activationfrominputnewstate_updateTOTALLYinputstate_decayingPOW2probactivation0.5_nobatchreactivation_medium/model/model.ckpt-0"
