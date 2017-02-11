@@ -1,4 +1,5 @@
 .idea
+*.py[cod]
 train
 test
 valid
