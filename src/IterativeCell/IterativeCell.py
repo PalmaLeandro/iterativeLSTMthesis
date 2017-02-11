@@ -74,7 +74,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             variable_summaries(number_of_iterations_performed, tf.get_variable_scope().name+"/iterations_performed")
             self._already_added_summaries.append(tf.get_variable_scope().name+"/iterations_performed")
             variable_summaries(self.calculate_feature_entropy(final_output), tf.get_variable_scope().name + "/post_execution_output_entropy")
-            self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy"
+            self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy")
 
     def loop_condition(self):
         return lambda input, state, iteration_number, iterate_prob, iteration_activations: \
