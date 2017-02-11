@@ -62,18 +62,20 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         return final_output, final_state
 
     def calculate_feature_entropy(self, feature_vector):
-        return feature_vector * tf.nn.log(feature_vector) + (1 - feature_vector) * tf.nn.log(1 - feature_vector)
+        return feature_vector * tf.log(feature_vector) + (1 - feature_vector) * tf.log(1 - feature_vector)
 
     def add_pre_execution_summaries(self, input, state):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name + "/pre_execution_input_entropy"):
-            variable_summaries(self.calculate_feature_entropy(input), tf.get_variable_scope().name + "/pre_execution_input_entropy")
+            variable_summaries(self.calculate_feature_entropy(input),
+                               tf.get_variable_scope().name + "/pre_execution_input_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/pre_execution_input_entropy")
 
     def add_post_execution_summaries(self, final_output, final_state, number_of_iterations_performed, final_iterate_prob, final_iteration_activations):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name+"/iterations_performed"):
             variable_summaries(number_of_iterations_performed, tf.get_variable_scope().name+"/iterations_performed")
             self._already_added_summaries.append(tf.get_variable_scope().name+"/iterations_performed")
-            variable_summaries(self.calculate_feature_entropy(final_output), tf.get_variable_scope().name + "/post_execution_output_entropy")
+            variable_summaries(self.calculate_feature_entropy(final_output),
+                               tf.get_variable_scope().name + "/post_execution_output_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy")
 
     def loop_condition(self):
@@ -121,14 +123,17 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             return new_iteration_activations * current_iteration_activations * batch_iteration_activations_extended
 
 
-def variable_summaries(var, name):
+def variable_summaries(var, name, add_distribution=True, add_range=True, add_histogram=True):
     """Attach a lot of summaries to a Tensor."""
     with tf.name_scope('summaries'):
-        mean = tf.reduce_mean(var)
-        tf.scalar_summary('mean/' + name, mean)
-        with tf.name_scope('stddev'):
-            stddev = tf.sqrt(tf.reduce_sum(tf.square(var - mean)))
-        tf.scalar_summary('sttdev/' + name, stddev)
-        tf.scalar_summary('max/' + name, tf.reduce_max(var))
-        tf.scalar_summary('min/' + name, tf.reduce_min(var))
-        tf.histogram_summary(name, var)
+        if add_distribution:
+            mean = tf.reduce_mean(var)
+            tf.scalar_summary('mean/' + name, mean)
+            with tf.name_scope('stddev'):
+                stddev = tf.sqrt(tf.reduce_sum(tf.square(var - mean)))
+                tf.scalar_summary('sttdev/' + name, stddev)
+        if add_range:
+            tf.scalar_summary('max/' + name, tf.reduce_max(var))
+            tf.scalar_summary('min/' + name, tf.reduce_min(var))
+        if add_histogram:
+            tf.histogram_summary(name, var)
