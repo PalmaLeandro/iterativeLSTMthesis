@@ -19,7 +19,6 @@ from __future__ import division
 from __future__ import print_function
 
 import math
-import tensorflow as tf
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
 
@@ -541,7 +540,7 @@ class DropoutWrapper(RNNCell):
     if (not isinstance(self._input_keep_prob, float) or
         self._input_keep_prob < 1):
       inputs = nn_ops.dropout(inputs, self._input_keep_prob, seed=self._seed)
-    output, new_state, iteration_number = self._cell(inputs, state)
+    output, new_state = self._cell(inputs, state)
     if (not isinstance(self._output_keep_prob, float) or
         self._output_keep_prob < 1):
       output = nn_ops.dropout(output, self._output_keep_prob, seed=self._seed)
@@ -652,19 +651,14 @@ class MultiRNNCell(RNNCell):
       cur_state_pos = 0
       cur_inp = inputs
       new_states = []
-      iterations_numbers = []
       for i, cell in enumerate(self._cells):
         with vs.variable_scope("Cell%d" % i):
           cur_state = array_ops.slice(
               state, [0, cur_state_pos], [-1, cell.state_size])
           cur_state_pos += cell.state_size
-          cur_inp, new_state, iteration_numbers = cell(cur_inp, cur_state)
-          #cur_inp, new_state= cell(cur_inp, cur_state)
+          cur_inp, new_state = cell(cur_inp, cur_state)
           new_states.append(new_state)
-          iterations_numbers.append(tf.reduce_mean(iteration_numbers))
-    #return cur_inp, array_ops.concat(1, new_states)
-
-    return cur_inp, array_ops.concat(1, new_states), array_ops.concat(0,iteration_numbers)
+    return cur_inp, array_ops.concat(1, new_states)
 
 
 class SlimRNNCell(RNNCell):
@@ -749,4 +743,3 @@ def linear(args, output_size, bias, bias_start=0.0, scope=None):
         "Bias", [output_size],
         initializer=init_ops.constant_initializer(bias_start))
   return res + bias_term
-

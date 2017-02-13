@@ -20,7 +20,8 @@ class NarrowIterativeLSTM(RNNCell):
         "Iterative Long short-term memory cell (LSTM)."
         with vs.variable_scope(scope or type(self).__name__):
             loop_vars = [inputs, state, tf.zeros([self.output_size]), tf.constant(self._forget_bias), tf.constant(0.0),
-                         tf.constant(self._max_iterations), tf.constant(self._iterate_prob), tf.constant(self._iterate_prob_decay), tf.ones(inputs.get_shape()), tf.constant(True)]
+                         tf.constant(self._max_iterations), tf.constant(self._iterate_prob),
+                         tf.constant(self._iterate_prob_decay), tf.ones(inputs.get_shape()), tf.constant(True)]
             loop_vars[0], loop_vars[1], loop_vars[2], loop_vars[3], loop_vars[4], loop_vars[5], loop_vars[6], loop_vars[
                 7], loop_vars[8], loop_vars[9] = tf.while_loop(iterativeLSTM_LoopCondition, iterativeLSTM_Iteration, loop_vars)
 
