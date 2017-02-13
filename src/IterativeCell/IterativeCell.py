@@ -105,15 +105,12 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
                                       current_iteration_activations):
         output, new_state = self._internal_nn(input, state)
 
-        c, h = array_ops.split(1, 2, state)
-        new_c, new_h = array_ops.split(1, 2, new_state)
+        # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
+        output = output * current_iteration_activations + input * (1 - current_iteration_activations)
 
-        new_h = new_h * current_iteration_activations+ h * (1 - current_iteration_activations)
-        new_c = new_c * current_iteration_activations + c * (1 - current_iteration_activations)
+        new_state_activation_extended = tf.tile(current_iteration_activations,[1,2])
+        new_state = new_state * new_state_activation_extended + state * (1 - new_state_activation_extended)
 
-        new_state = array_ops.concat(1, [new_c, new_h])
-
-        output = new_h
         number_of_iterations_performed += tf.floor(current_iteration_activations + iterate_prob)
 
         iteration_activations = self.resolve_iteration_activations(input, state, output, new_state, iterate_prob,
