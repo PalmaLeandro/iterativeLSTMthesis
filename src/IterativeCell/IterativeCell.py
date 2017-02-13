@@ -49,26 +49,26 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         return self._internal_nn.state_size
 
     def __call__(self, input, state, scope=None):
-        with self._device_to_run_at:
-            if self._should_add_summaries:
-                self.add_pre_execution_summaries(input,state)
+        if self._should_add_summaries:
+            self.add_pre_execution_summaries(input,state)
 
-            with vs.variable_scope(scope or type(self).__name__):
-                loop_variables = [input,                                                # previous layer output
-                                  state,                                                # last cell's state
-                                  tf.zeros([input.get_shape()[0],input.get_shape()[1]]),# number of the current iteration
-                                  tf.constant(self._initial_iterate_prob_constant),     # initial iteration probability
-                                  tf.ones([input.get_shape()[0],input.get_shape()[1]])] # calculation of the first iteration's activation
+        with vs.variable_scope(scope or type(self).__name__):
+            loop_variables = [input,                                                # Previous layer output
+                              state,                                                # Last cell's state
+                              tf.zeros([input.get_shape()[0],input.get_shape()[1]]),# Number of the current iteration
+                              tf.constant(self._initial_iterate_prob_constant),     # Initial iteration probability
+                              tf.ones([input.get_shape()[0],input.get_shape()[1]])] # Calculation of the first
+                                                                                    # iteration's activation
 
-                final_output, \
-                final_state, \
-                number_of_iterations_performed, \
-                final_iterate_prob, \
-                final_iteration_activations = tf.while_loop(self.loop_condition(), self.loop_body(), loop_variables)
+            final_output, \
+            final_state, \
+            number_of_iterations_performed, \
+            final_iterate_prob, \
+            final_iteration_activations = tf.while_loop(self.loop_condition(), self.loop_body(), loop_variables)
 
-            if self._should_add_summaries:
-                self.add_post_execution_summaries(final_output, final_state, number_of_iterations_performed,
-                                                  final_iterate_prob, final_iteration_activations)
+        if self._should_add_summaries:
+            self.add_post_execution_summaries(final_output, final_state, number_of_iterations_performed,
+                                              final_iterate_prob, final_iteration_activations)
 
         return final_output, final_state
 
