@@ -7,7 +7,7 @@ from tensorflow.python.ops.math_ops import floor
 from tensorflow.python.ops.rnn_cell import linear
 from rnn_cell import *
 
-class NarrowIterativeLSTM(RNNCell):
+class IterativeCell(RNNCell):
 
     def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=50., initial_iterate_prob=0.5,
                  iterate_prob_decay=0.5, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
