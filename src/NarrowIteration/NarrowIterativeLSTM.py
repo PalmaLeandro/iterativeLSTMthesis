@@ -55,16 +55,16 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             self.add_pre_execution_summaries(input, state)
 
         with vs.variable_scope(scope or type(self).__name__):
-            loop_vars = [input, state, tf.zeros([self.output_size]), tf.constant(self._forget_bias), tf.constant(0.0),
-                         tf.constant(self._max_iterations), tf.constant(self._iterate_prob),
-                         tf.constant(self._iterate_prob_decay), tf.ones(input.get_shape()), tf.constant(True)]
+            loop_vars = [input, state, tf.zeros([self.output_size]), tf.constant(0.0), tf.constant(0.0),
+                         tf.constant(self._max_iteration_constant), tf.constant(self._initial_iterate_prob_constant),
+                         tf.constant(self._iterate_prob_decay_constant), tf.ones(input.get_shape()), tf.constant(True)]
             loop_vars[0], loop_vars[1], loop_vars[2], loop_vars[3], loop_vars[4], loop_vars[5], loop_vars[6], loop_vars[
                 7], loop_vars[8], loop_vars[9] = tf.while_loop(iterativeLSTM_LoopCondition, iterativeLSTM_Iteration, loop_vars)
 
         if self._should_add_summaries:
             self.add_post_execution_summaries(loop_vars[0] , loop_vars[1], loop_vars[4], None, None)
 
-            return loop_vars[0], loop_vars[1]
+        return loop_vars[0], loop_vars[1]
 
     def calculate_feature_entropy(self, feature_vector):
         return - feature_vector * tf.log(feature_vector) - (1 - feature_vector) * tf.log(1 - feature_vector)
