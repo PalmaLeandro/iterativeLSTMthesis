@@ -55,9 +55,9 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         with vs.variable_scope(scope or type(self).__name__):
             loop_variables = [input,                                                # Previous layer output
                               state,                                                # Last cell's state
-                              tf.zeros([input.get_shape()[0],input.get_shape()[1]]),# Number of the current iteration
+                              tf.zeros(tf.shape(input)),# Number of the current iteration
                               tf.constant(self._initial_iterate_prob_constant),     # Initial iteration probability
-                              tf.ones([input.get_shape()[0],input.get_shape()[1]])] # Calculation of the first
+                              tf.ones(tf.shape(input))] # Calculation of the first
                                                                                     # iteration's activation
 
             final_output, \
