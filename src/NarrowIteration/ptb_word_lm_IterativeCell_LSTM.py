@@ -63,7 +63,7 @@ import tensorflow as tf
 
 from tensorflow.models.rnn.ptb import reader
 
-from IterativeCell import IterativeCell
+from NarrowIterativeLSTM import *
 
 flags = tf.flags
 logging = tf.logging

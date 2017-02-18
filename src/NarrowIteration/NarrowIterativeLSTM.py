@@ -7,37 +7,84 @@ from tensorflow.python.ops.math_ops import floor
 from tensorflow.python.ops.rnn_cell import linear
 from rnn_cell import *
 
-class NarrowIterativeLSTM(RNNCell):
-    def __init__(self, max_iterations=50.0, iterate_prob=0.5, iterate_prob_decay=0.5, num_units=1, forget_bias=0.0, input_size=None):
-        self._iterate_prob = iterate_prob
-        self._num_units = num_units
-        self._forget_bias = forget_bias
-        self._input_size = num_units if input_size is None else input_size
-        self._max_iterations = max_iterations
-        self._iterate_prob_decay = iterate_prob_decay
+class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
-    def __call__(self, inputs, state, scope=None):
-        "Iterative Long short-term memory cell (LSTM)."
-        with vs.variable_scope(scope or type(self).__name__):
-            loop_vars = [inputs, state, tf.zeros([self.output_size]), tf.constant(self._forget_bias), tf.constant(0.0),
-                         tf.constant(self._max_iterations), tf.constant(self._iterate_prob), tf.constant(self._iterate_prob_decay), tf.ones(inputs.get_shape()), tf.constant(True)]
-            loop_vars[0], loop_vars[1], loop_vars[2], loop_vars[3], loop_vars[4], loop_vars[5], loop_vars[6], loop_vars[
-                7], loop_vars[8], loop_vars[9] = tf.while_loop(iterativeLSTM_LoopCondition, iterativeLSTM_Iteration, loop_vars)
+    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=50., initial_iterate_prob=0.5,
+                 iterate_prob_decay=0.5, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
+        self._device_to_run_at = device_to_run_at
 
-            # This basic approach doesn't apply any last layer to the unit.
-        return loop_vars[0] , loop_vars[1], loop_vars[4]
+        if internal_nn is None:
+            raise "You must define an internal NN to iterate"
+
+        if internal_nn.input_size != internal_nn.output_size:
+            raise "Input and output sizes of the internal NN must be the same in order to iterate over them"
+
+        if iteration_activation_nn is not None and (iteration_activation_nn.output_size != internal_nn.output_size):
+            raise "Input and output sizes of the iteration activation NN should be the same as the ones from " \
+                  "internal NN"
+
+        if max_iterations < 1:
+            raise "The maximum amount of iterations to perform must be a natural value"
+
+        if initial_iterate_prob <= 0 or initial_iterate_prob >= 1:
+            raise "iteration_prob must be a value between 0 and 1"
+
+        self._internal_nn = internal_nn
+        self._iteration_activation_nn = iteration_activation_nn
+        self._max_iteration_constant = max_iterations
+        self._initial_iterate_prob_constant = initial_iterate_prob
+        self._iterate_prob_decay_constant = iterate_prob_decay
+        self._allow_reactivation = allow_cell_reactivation
+        self._should_add_summaries = add_summaries
+        self._already_added_summaries = []
 
     @property
     def input_size(self):
-        return self._input_size
+        return self._internal_nn._input_size
 
     @property
     def output_size(self):
-        return self._num_units
+        return self._internal_nn.output_size
 
     @property
     def state_size(self):
-        return self._num_units * 2
+        return self._internal_nn.state_size
+
+    def __call__(self, input, state, scope=None):
+        if self._should_add_summaries:
+            self.add_pre_execution_summaries(input, state)
+
+        with vs.variable_scope(scope or type(self).__name__):
+            loop_vars = [input, state, tf.zeros([self.output_size]), tf.constant(0.0), tf.constant(0.0),
+                         tf.constant(self._max_iteration_constant), tf.constant(self._initial_iterate_prob_constant),
+                         tf.constant(self._iterate_prob_decay_constant), tf.ones(input.get_shape()), tf.constant(True)]
+            loop_vars[0], loop_vars[1], loop_vars[2], loop_vars[3], loop_vars[4], loop_vars[5], loop_vars[6], loop_vars[
+                7], loop_vars[8], loop_vars[9] = tf.while_loop(iterativeLSTM_LoopCondition, iterativeLSTM_Iteration, loop_vars)
+
+        if self._should_add_summaries:
+            self.add_post_execution_summaries(loop_vars[0] , loop_vars[1], loop_vars[4], None, None)
+
+        return loop_vars[0], loop_vars[1]
+
+    def calculate_feature_entropy(self, feature_vector):
+        return - feature_vector * tf.log(feature_vector) - (1 - feature_vector) * tf.log(1 - feature_vector)
+
+    def add_pre_execution_summaries(self, input, state):
+        if not self._already_added_summaries.__contains__(tf.get_variable_scope().name +
+                                                                  "/pre_execution_input_entropy"):
+            variable_summaries(self.calculate_feature_entropy(input),
+                               tf.get_variable_scope().name + "/pre_execution_input_entropy", add_histogram=False)
+            self._already_added_summaries.append(tf.get_variable_scope().name + "/pre_execution_input_entropy")
+
+    def add_post_execution_summaries(self, final_output, final_state, number_of_iterations_performed,
+                                     final_iterate_prob, final_iteration_activations):
+        if not self._already_added_summaries.__contains__(tf.get_variable_scope().name+"/iterations_performed"):
+            variable_summaries(number_of_iterations_performed, tf.get_variable_scope().name+"/iterations_performed")
+            self._already_added_summaries.append(tf.get_variable_scope().name+"/iterations_performed")
+
+            variable_summaries(self.calculate_feature_entropy(final_output),
+                               tf.get_variable_scope().name + "/post_execution_output_entropy", add_histogram=False)
+            self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy")
 
 
 def iterativeLSTM_CellCalculation(inputs, state, num_units, forget_bias, iteration_prob, iteration_activation):
@@ -100,3 +147,21 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation):
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     p = linear([ inputs, new_state], num_units, True,scope= "iteration_activation")
     return new_h, new_state,p
+
+
+def variable_summaries(var, name, add_distribution=True, add_range=True, add_histogram=True):
+    """Attach a lot of summaries to a Tensor."""
+    with tf.name_scope('summaries'):
+        if add_distribution:
+            mean = tf.reduce_mean(var)
+            tf.scalar_summary('mean/' + name, mean)
+            with tf.name_scope('stddev'):
+                stddev = tf.sqrt(tf.reduce_sum(tf.square(var - mean)))
+                tf.scalar_summary('sttdev/' + name, stddev)
+
+        if add_range:
+            tf.scalar_summary('max/' + name, tf.reduce_max(var))
+            tf.scalar_summary('min/' + name, tf.reduce_min(var))
+
+        if add_histogram:
+            tf.histogram_summary(name, var)

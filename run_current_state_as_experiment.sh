@@ -7,10 +7,17 @@
 # arg3: experiment to run
 # arg4: model to choose
 
-sudo git add -A
+git add -A
 
-sudo git checkout $1
+git checkout $1
 
-sudo git commit -m "\"$2\""
+git commit -m "\"$2\""
 
-sudo python $3 --data_path=`pwd`/data/simple-examples/data/ --model $4 --logdir `pwd`/logs/$2 --erase
+if [ "$#" -eq 4 ];then
+	echo "Attempt to instantiate a new model"
+	python $3 --data_path=`pwd`/data/simple-examples/data/ --model $4 --logdir `pwd`/logs/$2 --erase --exportmodeldir `pwd`/model/$2 
+fi
+if [ "$#" -eq 5 ];then
+	echo "Attempt to import existing model"
+	python $3 --data_path=`pwd`/data/simple-examples/data/ --model $4 --logdir `pwd`/logs/$2 --erase --exportmodeldir `pwd`/model/$2  --importmodeldir $5
+fi
