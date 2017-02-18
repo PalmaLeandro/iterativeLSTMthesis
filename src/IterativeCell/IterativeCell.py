@@ -115,15 +115,22 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
         iteration_activations = self.resolve_iteration_activations(input, state, output, new_state, iterate_prob,
                                                                    current_iteration_activations)
-        #output = tf.cond(self.loop_condition()(output, new_state, number_of_iterations_performed, iterate_prob,
-        # iteration_activations), lambda: input, lambda: output)
+        output = tf.cond(self.loop_condition()(output, new_state, number_of_iterations_performed, iterate_prob,
+                    iteration_activations), lambda: input, lambda: output)
 
         new_iterate_prob = iterate_prob * self._iterate_prob_decay_constant
 
         return output, new_state, number_of_iterations_performed, new_iterate_prob, iteration_activations
 
+    def resolve_iteration_gate_inputs(self, input, old_state, output, new_state, iterate_prob,
+                                      current_iteration_activations):
+        return -(  )
+
+
     def resolve_iteration_activations(self, input, old_state, output, new_state, iterate_prob,
                                       current_iteration_activations):
+        iteration_gate_inputs =
+
         if self._iteration_activation_nn is not None:
             iteration_activations = self._iteration_activation_nn.call(tf.concat(1,[input, new_state]))
         else:
