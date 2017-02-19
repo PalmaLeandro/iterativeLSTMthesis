@@ -386,7 +386,7 @@ def main(_):
     init_model_persistance()
 
     train_writer = tf.train.SummaryWriter(FLAGS.logdir + "/train", session.graph)
-    valid_writer = tf.train.SummaryWriter(FLAGS.logdir + "./valid", session.graph)
+    valid_writer = tf.train.SummaryWriter(FLAGS.logdir + "/valid", session.graph)
     test_writer = tf.train.SummaryWriter(FLAGS.logdir + "/test", session.graph)
 
     for i in range(initial_epoch, config.max_max_epoch):
