@@ -139,7 +139,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         if self._iteration_activation_nn is not None:
             iteration_activations = self._iteration_activation_nn.call(tf.concat(1,iteration_gate_inputs))
         else:
-            iteration_activations = sigmoid(linear(iteration_gate_inputs, self.output_size, True,
+            iteration_activations = sigmoid(linear(iteration_gate_inputs, self.output_size, False,
                                                    scope=tf.get_variable_scope()))
 
         tf.get_variable_scope().reuse_variables()
