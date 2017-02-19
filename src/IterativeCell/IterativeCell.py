@@ -75,6 +75,11 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
     def calculate_feature_entropy(self, feature_vector):
         return - feature_vector * tf.log(feature_vector) - (1 - feature_vector) * tf.log(1 - feature_vector)
 
+    def calculate_evaluation_kl_divergence(self, input, output):
+        log_feature_importance_sampling = (tf.log(output) - tf.log(input))
+        log_notfeature_importance_sampling = (tf.log(1 - output) - tf.log(1 - input))
+        return -((output * log_feature_importance_sampling) + ((1 - output) * log_notfeature_importance_sampling))
+
     def add_pre_execution_summaries(self, input, state):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name +
                                                                   "/pre_execution_input_entropy"):
@@ -91,6 +96,10 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             variable_summaries(self.calculate_feature_entropy(final_output),
                                tf.get_variable_scope().name + "/post_execution_output_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy")
+
+            variable_summaries(self.calculate_evaluation_kl_divergence(input,final_output),
+                               tf.get_variable_scope().name + "/kl_divergence", add_histogram=False)
+            self._already_added_summaries.append(tf.get_variable_scope().name + "/kl_divergence")
 
     def loop_condition(self):
         return lambda input, state, iteration_number, iterate_prob, iteration_activations: \
@@ -122,19 +131,15 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
         return output, new_state, number_of_iterations_performed, new_iterate_prob, iteration_activations
 
-    def resolve_iteration_gate_inputs(self, input, old_state, output, new_state, iterate_prob,
-                                      current_iteration_activations):
-        return -(  )
-
 
     def resolve_iteration_activations(self, input, old_state, output, new_state, iterate_prob,
                                       current_iteration_activations):
-        iteration_gate_inputs =
+        iteration_gate_inputs = [input, new_state]
 
         if self._iteration_activation_nn is not None:
-            iteration_activations = self._iteration_activation_nn.call(tf.concat(1,[input, new_state]))
+            iteration_activations = self._iteration_activation_nn.call(tf.concat(1,iteration_gate_inputs))
         else:
-            iteration_activations = sigmoid(linear([input, new_state], self.output_size, True,
+            iteration_activations = sigmoid(linear(iteration_gate_inputs, self.output_size, True,
                                                    scope=tf.get_variable_scope()))
 
         tf.get_variable_scope().reuse_variables()
