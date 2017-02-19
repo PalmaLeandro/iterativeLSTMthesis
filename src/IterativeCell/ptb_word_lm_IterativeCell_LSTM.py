@@ -116,7 +116,7 @@ class PTBModel(object):
       core_cell, output_keep_prob=config.keep_prob)
     iterative_lstm_cell = tf.nn.rnn_cell.DropoutWrapper(
       iterative_lstm_cell, output_keep_prob=config.keep_prob)
-    cell = tf.nn.rnn_cell.MultiRNNCell([iterative_lstm_cell,core_cell])
+    cell = tf.nn.rnn_cell.MultiRNNCell([core_cell,iterative_lstm_cell])
 
     self._initial_state = cell.zero_state(batch_size, tf.float32)
 
