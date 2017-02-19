@@ -87,8 +87,8 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
                                tf.get_variable_scope().name + "/pre_execution_input_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/pre_execution_input_entropy")
 
-    def add_post_execution_summaries(self, final_output, final_state, number_of_iterations_performed,
-                                     final_iterate_prob, final_iteration_activations):
+    def add_post_execution_summaries(self,input, initial_state, final_output, final_state,
+                                     number_of_iterations_performed, final_iterate_prob, final_iteration_activations):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name+"/iterations_performed"):
             variable_summaries(number_of_iterations_performed, tf.get_variable_scope().name+"/iterations_performed")
             self._already_added_summaries.append(tf.get_variable_scope().name+"/iterations_performed")
@@ -97,7 +97,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
                                tf.get_variable_scope().name + "/post_execution_output_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy")
 
-            variable_summaries(self.calculate_evaluation_kl_divergence(input,final_output),
+            variable_summaries(self.calculate_evaluation_kl_divergence(input, final_output),
                                tf.get_variable_scope().name + "/kl_divergence", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/kl_divergence")
 
