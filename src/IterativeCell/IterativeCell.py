@@ -67,7 +67,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             final_iteration_activations = tf.while_loop(self.loop_condition(), self.loop_body(), loop_variables)
 
         if self._should_add_summaries:
-            self.add_post_execution_summaries(final_output, final_state, number_of_iterations_performed,
+            self.add_post_execution_summaries(input, state, final_output, final_state, number_of_iterations_performed,
                                               final_iterate_prob, final_iteration_activations)
 
         return final_output, final_state
