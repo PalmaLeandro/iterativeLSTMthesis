@@ -62,7 +62,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
                 7], loop_vars[8], loop_vars[9] = tf.while_loop(iterativeLSTM_LoopCondition, iterativeLSTM_Iteration, loop_vars)
 
         if self._should_add_summaries:
-            self.add_post_execution_summaries(loop_vars[0] , loop_vars[1], loop_vars[4], None, None)
+            self.add_post_execution_summaries(input, state, loop_vars[0] , loop_vars[1], loop_vars[4], None, None)
 
         return loop_vars[0], loop_vars[1]
 
