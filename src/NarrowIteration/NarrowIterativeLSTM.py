@@ -69,6 +69,11 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
     def calculate_feature_entropy(self, feature_vector):
         return - feature_vector * tf.log(feature_vector) - (1 - feature_vector) * tf.log(1 - feature_vector)
 
+    def calculate_evaluation_kl_divergence(self, input, output):
+        log_feature_importance_sampling = (tf.log(output) - tf.log(input))
+        log_notfeature_importance_sampling = (tf.log(1 - output) - tf.log(1 - input))
+        return -((output * log_feature_importance_sampling) + ((1 - output) * log_notfeature_importance_sampling))
+
     def add_pre_execution_summaries(self, input, state):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name +
                                                                   "/pre_execution_input_entropy"):
@@ -76,8 +81,8 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
                                tf.get_variable_scope().name + "/pre_execution_input_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/pre_execution_input_entropy")
 
-    def add_post_execution_summaries(self, final_output, final_state, number_of_iterations_performed,
-                                     final_iterate_prob, final_iteration_activations):
+    def add_post_execution_summaries(self,input, initial_state, final_output, final_state,
+                                     number_of_iterations_performed, final_iterate_prob, final_iteration_activations):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name+"/iterations_performed"):
             variable_summaries(number_of_iterations_performed, tf.get_variable_scope().name+"/iterations_performed")
             self._already_added_summaries.append(tf.get_variable_scope().name+"/iterations_performed")
@@ -85,6 +90,10 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             variable_summaries(self.calculate_feature_entropy(final_output),
                                tf.get_variable_scope().name + "/post_execution_output_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy")
+
+            variable_summaries(self.calculate_evaluation_kl_divergence(input, final_output),
+                               tf.get_variable_scope().name + "/kl_divergence", add_histogram=False)
+            self._already_added_summaries.append(tf.get_variable_scope().name + "/kl_divergence")
 
 
 def iterativeLSTM_CellCalculation(inputs, state, num_units, forget_bias, iteration_prob, iteration_activation):
@@ -112,9 +121,9 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
     new_iteration_prob = iteration_prob * iteration_prob_decay
 
     # Here the current output is selected. If there will be another iteration, then the inputs remain. Otherwise, the last output will be used.
-    new_output = tf.cond(do_keep_looping, lambda:  inputs, lambda: new_output)
+    #new_output = tf.cond(do_keep_looping, lambda:  inputs, lambda: new_output)
     # Here the current state is selected. All i have to do in order to keep the iteration within the cell gates is to update c but not to update h if it's bit the last iteration.
-    new_state = tf.cond(do_keep_looping, lambda:  array_ops.concat(1, [array_ops.split(1, 2, new_state)[0], array_ops.split(1, 2, state)[1]]), lambda: new_state)
+    #new_state = tf.cond(do_keep_looping, lambda:  array_ops.concat(1, [array_ops.split(1, 2, new_state)[0], array_ops.split(1, 2, state)[1]]), lambda: new_state)
 
     return new_output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, do_keep_looping
 
@@ -145,7 +154,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation):
     new_state = array_ops.concat(1, [new_c, new_h])
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
-    p = linear([ inputs, new_state], num_units, True,scope= "iteration_activation")
+    p = linear([ inputs, new_state, o], num_units, True,scope= "iteration_activation")
     return new_h, new_state,p
 
 
