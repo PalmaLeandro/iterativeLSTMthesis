@@ -114,7 +114,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
     # Here the current output is selected. If there will be another iteration, then the inputs remain. Otherwise, the last output will be used.
     new_output = tf.cond(do_keep_looping, lambda:  inputs, lambda: new_output)
     # Here the current state is selected. All i have to do in order to keep the iteration within the cell gates is to update c but not to update h if it's bit the last iteration.
-    new_state = tf.cond(do_keep_looping, lambda:  array_ops.concat(1, [array_ops.split(1, 2, new_state)[0], array_ops.split(1, 2, state)[1]]), lambda: new_state)
+    #new_state = tf.cond(do_keep_looping, lambda:  array_ops.concat(1, [array_ops.split(1, 2, new_state)[0], array_ops.split(1, 2, state)[1]]), lambda: new_state)
 
     return new_output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, do_keep_looping
 
@@ -145,7 +145,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation):
     new_state = array_ops.concat(1, [new_c, new_h])
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
-    p = linear([ inputs, new_state, i, o], num_units, True,scope= "iteration_activation")
+    p = linear([ inputs, new_state], num_units, True,scope= "iteration_activation")
     return new_h, new_state,p
 
 
