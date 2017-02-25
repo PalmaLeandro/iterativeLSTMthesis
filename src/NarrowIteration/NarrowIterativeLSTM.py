@@ -148,7 +148,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation):
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     p = linear([ c, new_c], num_units, True,scope= "iteration_activation")
-    return tanh(new_h + ), new_state,p
+    return new_h, new_state,p
 
 
 def variable_summaries(var, name, add_distribution=True, add_range=True, add_histogram=True):
