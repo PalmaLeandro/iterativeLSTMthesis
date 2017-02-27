@@ -95,8 +95,7 @@ def calculate_feature_entropy(feature_vector):
     return - feature_vector * tf.log(feature_vector) - (1 - feature_vector) * tf.log(1 - feature_vector)
 
 def calculate_feature_vectors_kl_divergence(former_feature_vector, updated_feature_vector):
-    return former_feature_vector * (tf.log(former_feature_vector) - tf.log(updated_feature_vector)) +
-     (1 - former_feature_vector) * (tf.log(1 - former_feature_vector) - tf.log(1 - updated_feature_vector))
+    return former_feature_vector * (tf.log(former_feature_vector) - tf.log(updated_feature_vector)) + (1 - former_feature_vector) * (tf.log(1 - former_feature_vector) - tf.log(1 - updated_feature_vector))
 
 
 def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_number, max_iterations,
