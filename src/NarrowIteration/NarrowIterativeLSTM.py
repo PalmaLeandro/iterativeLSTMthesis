@@ -83,11 +83,11 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
                                tf.get_variable_scope().name + "/post_execution_output_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy")
 
-            variable_summaries(calculate_feature_vectors_kl_divergencel(initial_input, final_output),
+            variable_summaries(calculate_feature_vectors_kl_divergence(initial_input, final_output),
                                tf.get_variable_scope().name + "/improved_from_former_kl_divergence", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/improved_from_former_kl_divergence")
 
-            variable_summaries(calculate_feature_vectors_kl_divergencel(final_output, initial_input),
+            variable_summaries(calculate_feature_vectors_kl_divergence(final_output, initial_input),
                                tf.get_variable_scope().name + "/former_from_improved_kl_divergence", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/former_from_improved_kl_divergence")
 
