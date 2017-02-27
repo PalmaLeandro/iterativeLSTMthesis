@@ -111,10 +111,12 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     new_iteration_prob = iteration_prob * iteration_prob_decay
 
+
     # Here the current output is selected. If there will be another iteration, then the inputs remain. Otherwise, the last output will be used.
     #new_output = tf.cond(do_keep_looping, lambda:  inputs, lambda: new_output)
     # Here the current state is selected. All i have to do in order to keep the iteration within the cell gates is to update c but not to update h if it's bit the last iteration.
     #new_state = tf.cond(do_keep_looping, lambda:  array_ops.concat(1, [array_ops.split(1, 2, new_state)[0], array_ops.split(1, 2, state)[1]]), lambda: new_state)
+    
 
     return new_output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, do_keep_looping
 
@@ -136,7 +138,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation):
     i, j, f, o = array_ops.split(1, 4, concat)
 
     new_c = c * sigmoid(f + forget_bias) + sigmoid(i) * tanh(j)
-    new_h = tanh(new_c) * sigmoid(o)
+    new_h = tanh(new_c) 
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
     new_h = new_h * iteration_activation + h * (1 - iteration_activation)
@@ -145,8 +147,8 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation):
     new_state = array_ops.concat(1, [new_c, new_h])
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
-    p = linear([ c, new_c], num_units, True,scope= "iteration_activation")
-    return new_h, new_state,p
+    p = linear([ inputs, new_h], num_units, True,scope= "iteration_activation")
+    return new_h * sigmoid(o), new_state,p
 
 
 def variable_summaries(var, name, add_distribution=True, add_range=True, add_histogram=True):
