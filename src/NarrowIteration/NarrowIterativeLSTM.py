@@ -69,7 +69,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
     def add_pre_execution_summaries(self, input, state):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name +
                                                                   "/pre_execution_input_entropy"):
-            variable_summaries(self.calculate_feature_entropy(input),
+            variable_summaries(calculate_feature_entropy(input),
                                tf.get_variable_scope().name + "/pre_execution_input_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/pre_execution_input_entropy")
 
@@ -79,15 +79,15 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             variable_summaries(number_of_iterations_performed, tf.get_variable_scope().name+"/iterations_performed")
             self._already_added_summaries.append(tf.get_variable_scope().name+"/iterations_performed")
 
-            variable_summaries(self.calculate_feature_entropy(final_output),
+            variable_summaries(calculate_feature_entropy(final_output),
                                tf.get_variable_scope().name + "/post_execution_output_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy")
 
-            variable_summaries(self.calculate_feature_vectors_kl_divergencel(initial_input, final_output),
+            variable_summaries(calculate_feature_vectors_kl_divergencel(initial_input, final_output),
                                tf.get_variable_scope().name + "/improved_from_former_kl_divergence", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/improved_from_former_kl_divergence")
 
-            variable_summaries(self.calculate_feature_vectors_kl_divergencel(final_output, initial_input),
+            variable_summaries(calculate_feature_vectors_kl_divergencel(final_output, initial_input),
                                tf.get_variable_scope().name + "/former_from_improved_kl_divergence", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/former_from_improved_kl_divergence")
 
@@ -114,7 +114,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     new_c, new_h = array_ops.split(1, 2, new_state)
 
-    new_output = tf.cond(do_keep_looping, lambda: new_h, lambda:  output)
+    new_output = tf.cond(do_keep_looping, lambda: new_h, lambda: output)
 
     return new_output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, do_keep_looping
 
