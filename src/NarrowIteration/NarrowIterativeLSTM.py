@@ -135,7 +135,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     i, j, f, o = array_ops.split(1, 4, concat)
 
     new_c = c * sigmoid(f + forget_bias) + sigmoid(i) * tanh(j)
-    new_h = tanh(new_c) 
+    new_h = tanh(tanh(new_c)+inputs) 
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
     new_h = new_h * iteration_activation + h * (1 - iteration_activation)
