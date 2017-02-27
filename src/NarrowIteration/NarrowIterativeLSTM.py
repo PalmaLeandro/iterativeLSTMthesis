@@ -114,7 +114,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     new_c, new_h = array_ops.split(1, 2, new_state)
 
-    new_output = tf.cond(do_keep_looping, new_h, output)
+    new_output = tf.cond(do_keep_looping, lambda: new_h, lambda:  output)
 
     return new_output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, do_keep_looping
 
