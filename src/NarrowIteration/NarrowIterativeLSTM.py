@@ -62,12 +62,9 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
                 7], loop_vars[8], loop_vars[9] = tf.while_loop(iterativeLSTM_LoopCondition, iterativeLSTM_Iteration, loop_vars)
 
         if self._should_add_summaries:
-            self.add_post_execution_summaries(loop_vars[0] , loop_vars[1], loop_vars[4], None, None)
+            self.add_post_execution_summaries(input, state, loop_vars[0] , loop_vars[1], loop_vars[4], None, None)
 
         return loop_vars[0], loop_vars[1]
-
-    def calculate_feature_entropy(self, feature_vector):
-        return - feature_vector * tf.log(feature_vector) - (1 - feature_vector) * tf.log(1 - feature_vector)
 
     def add_pre_execution_summaries(self, input, state):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name +
@@ -76,7 +73,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
                                tf.get_variable_scope().name + "/pre_execution_input_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/pre_execution_input_entropy")
 
-    def add_post_execution_summaries(self, final_output, final_state, number_of_iterations_performed,
+    def add_post_execution_summaries(self, initial_input, initial_state, final_output, final_state, number_of_iterations_performed,
                                      final_iterate_prob, final_iteration_activations):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name+"/iterations_performed"):
             variable_summaries(number_of_iterations_performed, tf.get_variable_scope().name+"/iterations_performed")
@@ -86,23 +83,28 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
                                tf.get_variable_scope().name + "/post_execution_output_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy")
 
+            variable_summaries(self.calculate_feature_vectors_kl_divergencel(initial_input, final_output),
+                               tf.get_variable_scope().name + "/improved_from_former_kl_divergence", add_histogram=False)
+            self._already_added_summaries.append(tf.get_variable_scope().name + "/improved_from_former_kl_divergence")
 
-def iterativeLSTM_CellCalculation(inputs, state, num_units, forget_bias, iteration_prob, iteration_activation):
-    number_of_units = num_units.get_shape().dims[0].value
+            variable_summaries(self.calculate_feature_vectors_kl_divergencel(final_output, initial_input),
+                               tf.get_variable_scope().name + "/former_from_improved_kl_divergence", add_histogram=False)
+            self._already_added_summaries.append(tf.get_variable_scope().name + "/former_from_improved_kl_divergence")
 
-    new_output, new_state, p = iterativeLSTM(inputs, state, number_of_units, forget_bias, iteration_activation)
+def calculate_feature_entropy(feature_vector):
+    return - feature_vector * tf.log(feature_vector) - (1 - feature_vector) * tf.log(1 - feature_vector)
 
-    new_iteration_activation = floor(tf.nn.sigmoid(p) + iteration_prob) * iteration_activation
-
-    return new_output,  new_state, new_iteration_activation
+def calculate_feature_vectors_kl_divergence(former_feature_vector, updated_feature_vector):
+    return former_feature_vector * (tf.log(former_feature_vector) - tf.log(updated_feature_vector)) +
+     (1 - former_feature_vector) * (tf.log(1 - former_feature_vector) - tf.log(1 - updated_feature_vector))
 
 
 def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_number, max_iterations,
                             iteration_prob, iteration_prob_decay, iteration_activation, keep_looping):
 
-    new_output, new_state, new_iteration_activation = iterativeLSTM_CellCalculation(inputs, state, num_units,
-                                                                                        forget_bias,
-                                                                                        iteration_prob, iteration_activation)
+    output, new_state, new_iteration_activation = iterativeLSTM(inputs, state, num_units.get_shape().dims[0].value,
+                                                                                        forget_bias, iteration_activation,
+                                                                                        iteration_prob)
     iteration_flag = tf.reduce_max(new_iteration_activation)
 
     new_iteration_number = iteration_number + iteration_flag
@@ -111,23 +113,18 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     new_iteration_prob = iteration_prob * iteration_prob_decay
 
-    c, h = array_ops.split(1, 2, state)
-    
-    # Here the current output is selected. If there will be another iteration, then the inputs remain. Otherwise, the last output will be used.
-    new_output = tf.cond(do_keep_looping, lambda:  tanh(inputs + h), lambda: new_output)
-    # Here the current state is selected. All i have to do in order to keep the iteration within the cell gates is to update c but not to update h if it's bit the last iteration.
-    #new_state = tf.cond(do_keep_looping, lambda:  array_ops.concat(1, [array_ops.split(1, 2, new_state)[0], array_ops.split(1, 2, state)[1]]), lambda: new_state)
-    
+    new_c, new_h = array_ops.split(1, 2, new_state)
+
+    new_output = tf.cond(do_keep_looping, new_h, output)
 
     return new_output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, do_keep_looping
-
 
 def iterativeLSTM_LoopCondition(inputs, state, num_units, forget_bias, iteration_number, max_iterations,
                                 iteration_prob, iteration_prob_decay, iteration_activation, keep_looping):
     return keep_looping
 
 
-def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation):
+def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, iteration_prob):
     # This function aplies the standard LSTM calculation plus the calculation of the evidence to infer if another iteration is needed.
 
     # "BasicLSTM"
@@ -149,7 +146,19 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation):
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     p = linear([ inputs, new_h], num_units, True,scope= "iteration_activation")
-    return new_h * sigmoid(o), new_state,p
+
+
+    new_iteration_activation = update_iteration_activations(iteration_activation, floor(sigmoid(p) + iteration_prob))
+
+    return new_h * sigmoid(o), new_state, new_iteration_activation
+
+def update_iteration_activations(current_iteration_activations, new_iteration_activations):
+    # It is possible that other instances of the batch activate this cell, hence we need to avoid this
+    # by activate only those activations were this instance of the batch is actually activated
+    batch_iteration_activations = tf.reduce_max(current_iteration_activations, 1, True)
+    batch_iteration_activations_extended = tf.tile(batch_iteration_activations,[1, self.output_size])
+
+    return new_iteration_activations * batch_iteration_activations_extended
 
 
 def variable_summaries(var, name, add_distribution=True, add_range=True, add_histogram=True):
