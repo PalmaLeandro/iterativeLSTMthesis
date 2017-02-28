@@ -108,11 +108,15 @@ class PTBModel(object):
     # Slightly better results can be obtained with forget gate biases
     # initialized to 1 but the hyperparameters of the model would need to be
     # different than reported in the paper.
-    iterative_lstm_cell = IterativeCell(tf.nn.rnn_cell.BasicLSTMCell(size, forget_bias=0.0),add_summaries= not is_training)
+    core_cell = tf.nn.rnn_cell.BasicLSTMCell(size, forget_bias=0.0)
+    iterative_lstm_cell = IterativeCell(core_cell,add_summaries= not is_training)
     if is_training and config.keep_prob < 1:
-      iterative_lstm_cell = tf.nn.rnn_cell.DropoutWrapper(
-        iterative_lstm_cell, output_keep_prob=config.keep_prob)
-    cell = tf.nn.rnn_cell.MultiRNNCell([iterative_lstm_cell] * config.num_layers)
+      pass
+    core_cell = tf.nn.rnn_cell.DropoutWrapper(
+      core_cell, output_keep_prob=config.keep_prob)
+    iterative_lstm_cell = tf.nn.rnn_cell.DropoutWrapper(
+      iterative_lstm_cell, output_keep_prob=config.keep_prob)
+    cell = tf.nn.rnn_cell.MultiRNNCell([iterative_lstm_cell, core_cell ])
 
     self._initial_state = cell.zero_state(batch_size, tf.float32)
 
@@ -146,9 +150,9 @@ class PTBModel(object):
     softmax_b = tf.get_variable("softmax_b", [vocab_size])
     logits = tf.matmul(output, softmax_w) + softmax_b
     loss = tf.nn.seq2seq.sequence_loss_by_example(
-        [logits],
-        [tf.reshape(self._targets, [-1])],
-        [tf.ones([batch_size * num_steps])])
+      [logits],
+      [tf.reshape(self._targets, [-1])],
+      [tf.ones([batch_size * num_steps])])
     self._cost = cost = tf.reduce_sum(loss) / batch_size
     self._final_state = state
 
@@ -382,7 +386,7 @@ def main(_):
     init_model_persistance()
 
     train_writer = tf.train.SummaryWriter(FLAGS.logdir + "/train", session.graph)
-    valid_writer = tf.train.SummaryWriter(FLAGS.logdir + "./valid", session.graph)
+    valid_writer = tf.train.SummaryWriter(FLAGS.logdir + "/valid", session.graph)
     test_writer = tf.train.SummaryWriter(FLAGS.logdir + "/test", session.graph)
 
     for i in range(initial_epoch, config.max_max_epoch):
