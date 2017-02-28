@@ -114,10 +114,9 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     new_c, new_h = array_ops.split(1, 2, new_state)
 
-    new_output = tf.cond(do_keep_looping, lambda: new_h, lambda: output)
-    new_state = tf.cond(do_keep_looping, lambda: state, lambda: new_state)
+    #new_output = tf.cond(do_keep_looping, lambda: new_h, lambda: output)
 
-    return new_output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, do_keep_looping
+    return output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, do_keep_looping
 
 def iterativeLSTM_LoopCondition(inputs, state, num_units, forget_bias, iteration_number, max_iterations,
                                 iteration_prob, iteration_prob_decay, iteration_activation, keep_looping):
@@ -144,13 +143,15 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
 
     new_state = array_ops.concat(1, [new_c, new_h])
 
+    new_output = tanh(new_h * sigmoid(o))
+
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
-    p = linear([ inputs, new_h], num_units, True,scope= "iteration_activation")
+    p = linear([ inputs, new_h, new_output], num_units, True,scope= "iteration_activation")
 
 
     new_iteration_activation = update_iteration_activations(iteration_activation, floor(sigmoid(p) + iteration_prob))
 
-    return new_h * sigmoid(o), new_state, new_iteration_activation
+    return new_output, new_state, new_iteration_activation
 
 def update_iteration_activations(current_iteration_activations, new_iteration_activations):
     # It is possible that other instances of the batch activate this cell, hence we need to avoid this
