@@ -69,7 +69,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
     def add_pre_execution_summaries(self, input, state):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name +
                                                                   "/pre_execution_input_entropy"):
-            variable_summaries(calculate_feature_entropy(input),
+            variable_summaries(calculate_feature_entropy(sigmoid(input)),
                                tf.get_variable_scope().name + "/pre_execution_input_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/pre_execution_input_entropy")
 
@@ -79,15 +79,15 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             variable_summaries(number_of_iterations_performed, tf.get_variable_scope().name+"/iterations_performed")
             self._already_added_summaries.append(tf.get_variable_scope().name+"/iterations_performed")
 
-            variable_summaries(calculate_feature_entropy(final_output),
+            variable_summaries(calculate_feature_entropy(sigmoid(final_output)),
                                tf.get_variable_scope().name + "/post_execution_output_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy")
 
-            variable_summaries(calculate_feature_vectors_kl_divergence(initial_input, final_output),
+            variable_summaries(calculate_feature_vectors_kl_divergence(sigmoid(initial_input), sigmoid(final_output)),
                                tf.get_variable_scope().name + "/improved_from_former_kl_divergence", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/improved_from_former_kl_divergence")
 
-            variable_summaries(calculate_feature_vectors_kl_divergence(final_output, initial_input),
+            variable_summaries(calculate_feature_vectors_kl_divergence(sigmoid(final_output), sigmoid(initial_input)),
                                tf.get_variable_scope().name + "/former_from_improved_kl_divergence", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/former_from_improved_kl_divergence")
 
@@ -134,8 +134,10 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
     i, j, f, o = array_ops.split(1, 4, concat)
 
-    new_c = c * sigmoid(f + forget_bias) + sigmoid(i) * tanh(j)
-    new_h = tanh(tanh(new_c)+inputs) 
+    new_info = tanh(j)
+
+    new_c = c * sigmoid(f + forget_bias) + sigmoid(i) * new_info
+    new_h = tanh(new_c)
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
     new_h = new_h * iteration_activation + h * (1 - iteration_activation)
@@ -143,10 +145,10 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
 
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    new_output = tanh(new_h * sigmoid(o))
+    new_output = new_info * sigmoid(o) * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
-    p = linear([ inputs, new_h], num_units, True,scope= "iteration_activation")
+    p = linear([ inputs, new_output, h, new_h], num_units, True,scope= "iteration_activation")
 
 
     new_iteration_activation = update_iteration_activations(iteration_activation, floor(sigmoid(p) + iteration_prob))
