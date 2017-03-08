@@ -129,10 +129,10 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # "BasicLSTM"
     # Parameters of gates are concatenated into one multiply for efficiency.
     c, h = array_ops.split(1, 2, state)
-    concat = linear([inputs, h], 5 * num_units, True)
+    concat = linear([inputs, h], 4 * num_units, True)
 
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-    i, j, f, o, r = array_ops.split(1, 5, concat)
+    i, j, f, o = array_ops.split(1, 4, concat)
 
     new_info = tanh(j)
 
@@ -145,7 +145,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
 
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    new_output = tanh(new_info * sigmoid(o) + inputs * sigmoid(r)) * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = tanh(new_info * sigmoid(o) + inputs) * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     p = linear([ inputs, new_output], num_units, True,scope= "iteration_activation")
