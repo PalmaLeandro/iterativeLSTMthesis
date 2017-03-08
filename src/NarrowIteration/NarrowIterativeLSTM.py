@@ -112,9 +112,9 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     new_iteration_prob = iteration_prob * iteration_prob_decay
 
-    new_c, new_h = array_ops.split(1, 2, new_state)
+    #new_c, new_h = array_ops.split(1, 2, new_state)
 
-    new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
+    #new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
 
     return output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, do_keep_looping
 
@@ -129,7 +129,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # "BasicLSTM"
     # Parameters of gates are concatenated into one multiply for efficiency.
     c, h = array_ops.split(1, 2, state)
-    concat = linear([inputs, h], 4 * num_units, True)
+    concat = linear([inputs, h], 5 * num_units, True)
 
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
     i, j, f, o, r = array_ops.split(1, 5, concat)
