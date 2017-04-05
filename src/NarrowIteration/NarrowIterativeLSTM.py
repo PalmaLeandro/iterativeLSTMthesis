@@ -137,7 +137,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     new_info = tanh(j)
 
     new_c = c * sigmoid(f + forget_bias) + sigmoid(i) * tanh(new_info + inputs)
-    new_h = tanh(new_c) * sigmoid(o)
+    new_h = tanh(new_c)
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
     new_h = new_h * iteration_activation + h * (1 - iteration_activation)
@@ -145,7 +145,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
 
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    new_output = new_h# * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = new_h * sigmoid(o)# * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     p = linear([ inputs, new_output], num_units, True,scope= "iteration_activation")
