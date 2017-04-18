@@ -54,8 +54,9 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         if self._should_add_summaries:
             self.add_pre_execution_summaries(input, state)
 
+        c, h = array_ops.split(1, 2, state)
         with vs.variable_scope(scope or type(self).__name__):
-            loop_vars = [input, state, tf.zeros([self.output_size]), tf.constant(0.0), tf.constant(0.0),
+            loop_vars = [tanh(input + h), state, tf.zeros([self.output_size]), tf.constant(0.0), tf.constant(0.0),
                          tf.constant(self._max_iteration_constant), tf.constant(self._initial_iterate_prob_constant),
                          tf.constant(self._iterate_prob_decay_constant), tf.ones(input.get_shape()), tf.constant(True)]
             loop_vars[0], loop_vars[1], loop_vars[2], loop_vars[3], loop_vars[4], loop_vars[5], loop_vars[6], loop_vars[
@@ -134,7 +135,8 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
     i, j, f, o = array_ops.split(1, 4, concat)
 
-    new_c = c * sigmoid(f + forget_bias) + sigmoid(i) * tanh(j)
+    new_info = sigmoid(i) * tanh(j)
+    new_c = c * sigmoid(f + forget_bias) + new_info
     new_h = tanh(new_c)
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
@@ -143,7 +145,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
 
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    new_output = tanh(new_h  * sigmoid(o) + inputs * (1 - sigmoid(o)))# * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = tanh(new_info + inputs) * sigmoid(o)# * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     p = linear([ inputs, new_output], num_units, True,scope= "iteration_activation")
