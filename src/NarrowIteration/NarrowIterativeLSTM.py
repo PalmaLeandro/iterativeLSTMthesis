@@ -159,7 +159,7 @@ def update_iteration_activations(current_iteration_activations, new_iteration_ac
     # It is possible that other instances of the batch activate this cell, hence we need to avoid this
     # by activate only those activations were this instance of the batch is actually activated
     batch_iteration_activations = tf.reduce_max(current_iteration_activations, 1, True)
-    batch_iteration_activations_extended = tf.tile(batch_iteration_activations,[1, tf.shape(current_iteration_activations).dims[1].value])
+    batch_iteration_activations_extended = tf.tile(batch_iteration_activations, [1, current_iteration_activations.get_shape().dims[1].value])
 
     return new_iteration_activations * batch_iteration_activations_extended
 
