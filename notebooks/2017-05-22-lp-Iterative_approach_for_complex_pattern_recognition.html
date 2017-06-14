@@ -11756,19 +11756,231 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">variable_scope</span> <span class="k">as</span> <span class="n">vs</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">array_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops</span> <span class="kn">import</span> <span class="n">init_ops</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops.math_ops</span> <span class="kn">import</span> <span class="n">tanh</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops.math_ops</span> <span class="kn">import</span> <span class="n">sigmoid</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops.math_ops</span> <span class="kn">import</span> <span class="n">floor</span>
+<span class="kn">from</span> <span class="nn">tensorflow.python.ops.rnn_cell</span> <span class="kn">import</span> <span class="n">linear</span>
+<span class="kn">from</span> <span class="nn">rnn_cell</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">IterativeCell</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_iterations</span><span class="o">=</span><span class="mf">50.</span><span class="p">,</span> <span class="n">initial_iterate_prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                 <span class="n">iterate_prob_decay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">allow_cell_reactivation</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">add_summaries</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">device_to_run_at</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_device_to_run_at</span> <span class="o">=</span> <span class="n">device_to_run_at</span>
+
+        <span class="k">if</span> <span class="n">internal_nn</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="s2">&quot;You must define an internal NN to iterate&quot;</span>
+
+        <span class="k">if</span> <span class="n">internal_nn</span><span class="o">.</span><span class="n">input_size</span> <span class="o">!=</span> <span class="n">internal_nn</span><span class="o">.</span><span class="n">output_size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="s2">&quot;Input and output sizes of the internal NN must be the same in order to iterate over them&quot;</span>
+
+        <span class="k">if</span> <span class="n">iteration_activation_nn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">iteration_activation_nn</span><span class="o">.</span><span class="n">output_size</span> <span class="o">!=</span> <span class="n">internal_nn</span><span class="o">.</span><span class="n">output_size</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="s2">&quot;Input and output sizes of the iteration activation NN should be the same as the ones from &quot;</span> \
+                  <span class="s2">&quot;internal NN&quot;</span>
+
+        <span class="k">if</span> <span class="n">max_iterations</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="s2">&quot;The maximum amount of iterations to perform must be a natural value&quot;</span>
+
+        <span class="k">if</span> <span class="n">initial_iterate_prob</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">initial_iterate_prob</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="s2">&quot;iteration_prob must be a value between 0 and 1&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_internal_nn</span> <span class="o">=</span> <span class="n">internal_nn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_iteration_activation_nn</span> <span class="o">=</span> <span class="n">iteration_activation_nn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_iteration_constant</span> <span class="o">=</span> <span class="n">max_iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initial_iterate_prob_constant</span> <span class="o">=</span> <span class="n">initial_iterate_prob</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_iterate_prob_decay_constant</span> <span class="o">=</span> <span class="n">iterate_prob_decay</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_allow_reactivation</span> <span class="o">=</span> <span class="n">allow_cell_reactivation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_should_add_summaries</span> <span class="o">=</span> <span class="n">add_summaries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_nn</span><span class="o">.</span><span class="n">_input_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">output_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_nn</span><span class="o">.</span><span class="n">output_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">state_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_nn</span><span class="o">.</span><span class="n">state_size</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_add_summaries</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_pre_execution_summaries</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">vs</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">scope</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">):</span>
+            <span class="n">loop_vars</span> <span class="o">=</span> <span class="p">[</span><span class="nb">input</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">]),</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span>
+                         <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_iteration_constant</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_iterate_prob_constant</span><span class="p">),</span>
+                         <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_iterate_prob_decay_constant</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="p">)),</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">input</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">]),</span>
+                         <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="bp">True</span><span class="p">)]</span>
+            <span class="n">loop_vars</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span>
+                <span class="mi">7</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span><span class="n">iterativeLSTM_LoopCondition</span><span class="p">,</span> <span class="n">iterativeLSTM_Iteration</span><span class="p">,</span> <span class="n">loop_vars</span><span class="p">)</span>
+
+        <span class="c1">#_, loop_vars[0] = array_ops.split(1, 2, loop_vars[1])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_add_summaries</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_post_execution_summaries</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">,</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="bp">None</span><span class="p">,</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">add_pre_execution_summaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="n">__contains__</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span>
+                                                                  <span class="s2">&quot;/pre_execution_input_entropy&quot;</span><span class="p">):</span>
+            <span class="n">variable_summaries</span><span class="p">(</span><span class="n">calculate_feature_entropy</span><span class="p">(</span><span class="nb">input</span><span class="p">),</span>
+                               <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/pre_execution_input_entropy&quot;</span><span class="p">,</span> <span class="n">add_histogram</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/pre_execution_input_entropy&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add_post_execution_summaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_input</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">,</span> <span class="n">final_output</span><span class="p">,</span> <span class="n">final_state</span><span class="p">,</span> <span class="n">number_of_iterations_performed</span><span class="p">,</span>
+                                     <span class="n">final_iterate_prob</span><span class="p">,</span> <span class="n">final_iterations_counts</span><span class="p">,</span> <span class="n">final_iteration_activations</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="n">__contains__</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;/iterations_performed&quot;</span><span class="p">):</span>
+            <span class="n">variable_summaries</span><span class="p">(</span><span class="n">number_of_iterations_performed</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;/iterations_performed&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;/iterations_performed&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;/iterations_counts&quot;</span><span class="p">)</span>
+            <span class="n">variable_summaries</span><span class="p">(</span><span class="n">final_iterations_counts</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;/iterations_counts&quot;</span><span class="p">)</span>
+
+            <span class="n">variable_summaries</span><span class="p">(</span><span class="n">calculate_feature_entropy</span><span class="p">(</span><span class="n">final_output</span><span class="p">),</span>
+                               <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/post_execution_output_entropy&quot;</span><span class="p">,</span> <span class="n">add_histogram</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/post_execution_output_entropy&quot;</span><span class="p">)</span>
+
+            <span class="n">variable_summaries</span><span class="p">(</span><span class="n">calculate_feature_vectors_kl_divergence</span><span class="p">(</span><span class="n">initial_input</span><span class="p">,</span> <span class="n">final_output</span><span class="p">),</span>
+                               <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/improved_from_former_kl_divergence&quot;</span><span class="p">,</span> <span class="n">add_histogram</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/improved_from_former_kl_divergence&quot;</span><span class="p">)</span>
+
+            <span class="n">variable_summaries</span><span class="p">(</span><span class="n">calculate_feature_vectors_kl_divergence</span><span class="p">(</span><span class="n">final_output</span><span class="p">,</span> <span class="n">initial_input</span><span class="p">),</span>
+                               <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/former_from_improved_kl_divergence&quot;</span><span class="p">,</span> <span class="n">add_histogram</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/former_from_improved_kl_divergence&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">calculate_feature_entropy</span><span class="p">(</span><span class="n">feature_vector</span><span class="p">):</span>
+    <span class="k">return</span> <span class="o">-</span> <span class="n">feature_vector</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">feature_vector</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">feature_vector</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">feature_vector</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">calculate_feature_vectors_kl_divergence</span><span class="p">(</span><span class="n">former_feature_vector</span><span class="p">,</span> <span class="n">updated_feature_vector</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">former_feature_vector</span> <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">former_feature_vector</span><span class="p">)</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">updated_feature_vector</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">former_feature_vector</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">former_feature_vector</span><span class="p">)</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">updated_feature_vector</span><span class="p">))</span>
 
 
-<span class="kn">from</span> <span class="nn">tensorflow.examples.tutorials.mnist</span> <span class="kn">import</span> <span class="n">input_data</span>
-<span class="kn">from</span> <span class="nn">tensorflow.examples.tutorials.mnist</span> <span class="kn">import</span> <span class="n">mnist</span>
+<span class="k">def</span> <span class="nf">iterativeLSTM_Iteration</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">forget_bias</span><span class="p">,</span> <span class="n">iteration_number</span><span class="p">,</span> <span class="n">max_iterations</span><span class="p">,</span>
+                            <span class="n">iteration_prob</span><span class="p">,</span> <span class="n">iteration_prob_decay</span><span class="p">,</span> <span class="n">iteration_activation</span><span class="p">,</span> <span class="n">iteration_count</span><span class="p">,</span> 
+                            <span class="n">keep_looping</span><span class="p">):</span>
+
+    <span class="n">output</span><span class="p">,</span> <span class="n">new_state</span><span class="p">,</span> <span class="n">new_iteration_activation</span> <span class="o">=</span> <span class="n">iterativeLSTM</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">num_units</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                                                        <span class="n">forget_bias</span><span class="p">,</span> <span class="n">iteration_activation</span><span class="p">,</span>
+                                                                                        <span class="n">iteration_count</span><span class="p">,</span> <span class="n">iteration_prob</span><span class="p">)</span>
+    <span class="n">iteration_flag</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">new_iteration_activation</span><span class="p">)</span>
+
+    <span class="n">iteration_count</span> <span class="o">=</span> <span class="n">iteration_count</span> <span class="o">+</span> <span class="n">iteration_flag</span>
+
+    <span class="n">new_iteration_number</span> <span class="o">=</span> <span class="n">iteration_number</span> <span class="o">+</span> <span class="n">iteration_flag</span>
+
+    <span class="n">do_keep_looping</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">new_iteration_number</span><span class="p">,</span> <span class="n">max_iterations</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">iteration_flag</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)))</span>
+
+    <span class="n">new_iteration_prob</span> <span class="o">=</span> <span class="n">iteration_prob</span> <span class="o">*</span> <span class="n">iteration_prob_decay</span>
+
+    <span class="c1">#new_c, new_h = array_ops.split(1, 2, new_state)</span>
+
+    <span class="n">new_output</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">do_keep_looping</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">inputs</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">output</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">new_state</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">forget_bias</span><span class="p">,</span> <span class="n">new_iteration_number</span><span class="p">,</span> <span class="n">max_iterations</span><span class="p">,</span> <span class="n">new_iteration_prob</span><span class="p">,</span> <span class="n">iteration_prob_decay</span><span class="p">,</span> <span class="n">new_iteration_activation</span><span class="p">,</span> <span class="n">iteration_count</span><span class="p">,</span> <span class="n">do_keep_looping</span>
+
+<span class="k">def</span> <span class="nf">iterativeLSTM_LoopCondition</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">forget_bias</span><span class="p">,</span> <span class="n">iteration_number</span><span class="p">,</span> <span class="n">max_iterations</span><span class="p">,</span>
+                                <span class="n">iteration_prob</span><span class="p">,</span> <span class="n">iteration_prob_decay</span><span class="p">,</span> <span class="n">iteration_activation</span><span class="p">,</span> <span class="n">iteration_count</span><span class="p">,</span> 
+                                <span class="n">keep_looping</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">keep_looping</span>
+
+
+<span class="k">def</span> <span class="nf">iterativeLSTM</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">forget_bias</span><span class="p">,</span> <span class="n">iteration_activation</span><span class="p">,</span> <span class="n">iteration_count</span><span class="p">,</span> <span class="n">iteration_prob</span><span class="p">):</span>
+    <span class="c1"># This function aplies the standard LSTM calculation plus the calculation of the evidence to infer if another iteration is needed.</span>
+
+    <span class="c1"># &quot;BasicLSTM&quot;</span>
+    <span class="c1"># Parameters of gates are concatenated into one multiply for efficiency.</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+    <span class="n">j_logits</span> <span class="o">=</span> <span class="n">linear</span><span class="p">([</span><span class="n">inputs</span><span class="p">,</span> <span class="n">h</span><span class="p">],</span> <span class="n">num_units</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;j_logits&quot;</span><span class="p">)</span>
+    <span class="n">j_displacement</span> <span class="o">=</span> <span class="n">linear</span><span class="p">([</span><span class="n">iteration_count</span><span class="p">],</span> <span class="n">num_units</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;j_displacement&quot;</span><span class="p">)</span>
+    <span class="n">opposed_j</span> <span class="o">=</span> <span class="n">tanh</span><span class="p">(</span> <span class="o">-</span> <span class="n">j_logits</span> <span class="o">+</span> <span class="n">j_displacement</span><span class="p">)</span>
+    <span class="n">new_info</span> <span class="o">=</span> <span class="n">tanh</span><span class="p">(</span><span class="n">tanh</span><span class="p">(</span><span class="n">j_logits</span> <span class="o">+</span> <span class="n">j_displacement</span><span class="p">)</span> <span class="o">+</span> <span class="n">tanh</span><span class="p">(</span><span class="n">opposed_j</span> <span class="o">*</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">opposed_j</span><span class="p">)))</span>
+    <span class="n">concat</span> <span class="o">=</span> <span class="n">linear</span><span class="p">([</span><span class="n">new_info</span><span class="p">,</span> <span class="n">h</span><span class="p">],</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">num_units</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+    <span class="c1"># i = input_gate, j = new_input, f = forget_gate, o = output_gate</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">o</span> <span class="o">=</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">concat</span><span class="p">)</span>
+
+    <span class="n">new_c</span> <span class="o">=</span> <span class="n">tanh</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">f</span> <span class="o">+</span> <span class="n">forget_bias</span><span class="p">)</span> <span class="o">+</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">new_info</span>
+    <span class="n">new_h</span> <span class="o">=</span> <span class="n">tanh</span><span class="p">(</span><span class="n">new_c</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+
+    <span class="c1"># Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.</span>
+    <span class="n">new_h</span> <span class="o">=</span> <span class="n">new_h</span> <span class="o">*</span> <span class="n">iteration_activation</span> <span class="o">+</span> <span class="n">h</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">iteration_activation</span><span class="p">)</span>
+    <span class="n">new_c</span> <span class="o">=</span> <span class="n">new_c</span> <span class="o">*</span> <span class="n">iteration_activation</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">iteration_activation</span><span class="p">)</span>
+
+    <span class="n">new_state</span> <span class="o">=</span> <span class="n">array_ops</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="n">new_c</span><span class="p">,</span> <span class="n">new_h</span><span class="p">])</span>
+    <span class="n">new_output</span> <span class="o">=</span> <span class="n">new_h</span> <span class="o">*</span> <span class="n">iteration_activation</span> <span class="o">+</span> <span class="n">inputs</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">iteration_activation</span><span class="p">)</span>
+
+    <span class="c1"># In this approach the evidence of the iteration gate is based on the inputs that doesn&#39;t change over iterations and its state</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">linear</span><span class="p">([</span><span class="n">inputs</span><span class="p">,</span> <span class="n">new_output</span><span class="p">],</span> <span class="n">num_units</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span> <span class="s2">&quot;iteration_activation&quot;</span><span class="p">)</span>
+
+
+    <span class="n">new_iteration_activation</span> <span class="o">=</span> <span class="n">update_iteration_activations</span><span class="p">(</span><span class="n">iteration_activation</span><span class="p">,</span> <span class="n">floor</span><span class="p">(</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="n">iteration_prob</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">new_output</span><span class="p">,</span> <span class="n">new_state</span><span class="p">,</span> <span class="n">new_iteration_activation</span>
+
+<span class="k">def</span> <span class="nf">update_iteration_activations</span><span class="p">(</span><span class="n">current_iteration_activations</span><span class="p">,</span> <span class="n">new_iteration_activations</span><span class="p">):</span>
+    <span class="c1"># It is possible that other instances of the batch activate this cell, hence we need to avoid this</span>
+    <span class="c1"># by activate only those activations were this instance of the batch is actually activated</span>
+    <span class="n">batch_iteration_activations</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">current_iteration_activations</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">batch_iteration_activations_extended</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">batch_iteration_activations</span><span class="p">,</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">current_iteration_activations</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="ow">or</span> <span class="n">new_iteration_activations</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)])</span>
+
+    <span class="k">return</span> <span class="n">new_iteration_activations</span> <span class="o">*</span> <span class="n">batch_iteration_activations_extended</span>
+
+
+<span class="k">def</span> <span class="nf">variable_summaries</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">add_distribution</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">add_range</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">add_histogram</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Attach a lot of summaries to a Tensor.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s1">&#39;summaries&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">add_distribution</span><span class="p">:</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">scalar_summary</span><span class="p">(</span><span class="s1">&#39;mean/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="n">mean</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">name_scope</span><span class="p">(</span><span class="s1">&#39;stddev&#39;</span><span class="p">):</span>
+                <span class="n">stddev</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">var</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)))</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">scalar_summary</span><span class="p">(</span><span class="s1">&#39;sttdev/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="n">stddev</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">add_range</span><span class="p">:</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">scalar_summary</span><span class="p">(</span><span class="s1">&#39;max/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">scalar_summary</span><span class="p">(</span><span class="s1">&#39;min/&#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_min</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">add_histogram</span><span class="p">:</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">histogram_summary</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
 </pre></div>
 
 </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ImportError</span>                               Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-2-cf8eb7a2b5a4&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">      6</span> <span class="ansi-green-fg">from</span> tensorflow<span class="ansi-blue-fg">.</span>python<span class="ansi-blue-fg">.</span>ops<span class="ansi-blue-fg">.</span>math_ops <span class="ansi-green-fg">import</span> sigmoid
+<span class="ansi-green-intense-fg ansi-bold">      7</span> <span class="ansi-green-fg">from</span> tensorflow<span class="ansi-blue-fg">.</span>python<span class="ansi-blue-fg">.</span>ops<span class="ansi-blue-fg">.</span>math_ops <span class="ansi-green-fg">import</span> floor
+<span class="ansi-green-fg">----&gt; 8</span><span class="ansi-red-fg"> </span><span class="ansi-green-fg">from</span> tensorflow<span class="ansi-blue-fg">.</span>python<span class="ansi-blue-fg">.</span>ops<span class="ansi-blue-fg">.</span>rnn_cell <span class="ansi-green-fg">import</span> linear
+<span class="ansi-green-intense-fg ansi-bold">      9</span> <span class="ansi-green-fg">from</span> rnn_cell <span class="ansi-green-fg">import</span> <span class="ansi-blue-fg">*</span>
+<span class="ansi-green-intense-fg ansi-bold">     10</span> 
+
+<span class="ansi-red-fg">ImportError</span>: cannot import name linear</pre>
+</div>
+</div>
+
 </div>
 </div>
 
