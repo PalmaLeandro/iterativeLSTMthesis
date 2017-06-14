@@ -3,7 +3,7 @@
 
 # At this notebook i am going to expose the ability of an iterative approach to recognize complex patterns aginst conventional feedfoward approach
 
-# In[2]:
+# In[1]:
 
 import tensorflow as tf
 from tensorflow.python.ops import variable_scope as vs
@@ -12,23 +12,14 @@ from tensorflow.python.ops import init_ops
 from tensorflow.python.ops.math_ops import tanh
 from tensorflow.python.ops.math_ops import sigmoid
 from tensorflow.python.ops.math_ops import floor
-from tensorflow.python.ops.rnn_cell import linear
 from rnn_cell import *
 
 class IterativeCell(object):
 
-    def __init__(self, max_iterations=50., initial_iterate_prob=0.5,
+    def __init__(self, size, max_iterations=50., initial_iterate_prob=0.5,
                  iterate_prob_decay=0.5, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
         self._device_to_run_at = device_to_run_at
-
-        if internal_nn is None:
-            raise "You must define an internal NN to iterate"
-
-        if internal_nn.input_size != internal_nn.output_size:
-            raise "Input and output sizes of the internal NN must be the same in order to iterate over them"
-
-        if iteration_activation_nn is not None and (iteration_activation_nn.output_size != internal_nn.output_size):
-            raise "Input and output sizes of the iteration activation NN should be the same as the ones from "                   "internal NN"
+        self._sixe = size
 
         if max_iterations < 1:
             raise "The maximum amount of iterations to perform must be a natural value"
@@ -36,8 +27,6 @@ class IterativeCell(object):
         if initial_iterate_prob <= 0 or initial_iterate_prob >= 1:
             raise "iteration_prob must be a value between 0 and 1"
 
-        self._internal_nn = internal_nn
-        self._iteration_activation_nn = iteration_activation_nn
         self._max_iteration_constant = max_iterations
         self._initial_iterate_prob_constant = initial_iterate_prob
         self._iterate_prob_decay_constant = iterate_prob_decay
@@ -62,7 +51,7 @@ class IterativeCell(object):
             self.add_pre_execution_summaries(input)
 
         with vs.variable_scope(scope or type(self).__name__):
-            loop_vars = [input, tf.zeros([self.output_size]), tf.constant(0.0), tf.constant(0.0),
+            loop_vars = [input, tf.zeros([self.output_size]), tf.constant(0.0),
                          tf.constant(self._max_iteration_constant), tf.constant(self._initial_iterate_prob_constant),
                          tf.constant(self._iterate_prob_decay_constant), tf.ones(tf.shape(input)), tf.zeros([input.get_shape().dims[0].value, self.output_size]),
                          tf.constant(True)]
@@ -74,7 +63,7 @@ class IterativeCell(object):
         if self._should_add_summaries:
             self.add_post_execution_summaries(input, state, loop_vars[0] , loop_vars[1], loop_vars[4], None, loop_vars[9], None)
 
-        return loop_vars[0], loop_vars[1]
+        return loop_vars[0]
 
     def add_pre_execution_summaries(self, input, state):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name +
@@ -111,11 +100,11 @@ def calculate_feature_vectors_kl_divergence(former_feature_vector, updated_featu
     return former_feature_vector * (tf.log(former_feature_vector) - tf.log(updated_feature_vector)) + (1 - former_feature_vector) * (tf.log(1 - former_feature_vector) - tf.log(1 - updated_feature_vector))
 
 
-def iterativeLSTM_Iteration(inputs, num_units, forget_bias, iteration_number, max_iterations,
+def iterativeLSTM_Iteration(inputs, num_units, iteration_number, max_iterations,
                             iteration_prob, iteration_prob_decay, iteration_activation, iteration_count, 
                             keep_looping):
 
-    output, new_state, new_iteration_activation = iterativeLSTM(inputs, state, num_units.get_shape().dims[0].value,
+    output, new_iteration_activation = iterativeLSTM(inputs, state, num_units.get_shape().dims[0].value,
                                                                                         forget_bias, iteration_activation,
                                                                                         iteration_count, iteration_prob)
     iteration_flag = tf.reduce_max(new_iteration_activation)
@@ -134,36 +123,20 @@ def iterativeLSTM_Iteration(inputs, num_units, forget_bias, iteration_number, ma
 
     return output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, iteration_count, do_keep_looping
 
-def iterativeLSTM_LoopCondition(inputs, state, num_units, forget_bias, iteration_number, max_iterations,
+def iterativeLSTM_LoopCondition(inputs, num_units, iteration_number, max_iterations,
                                 iteration_prob, iteration_prob_decay, iteration_activation, iteration_count, 
                                 keep_looping):
     return keep_looping
 
 
-def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, iteration_count, iteration_prob):
-    # This function aplies the standard LSTM calculation plus the calculation of the evidence to infer if another iteration is needed.
-
-    # "BasicLSTM"
-    # Parameters of gates are concatenated into one multiply for efficiency.
-    c, h = array_ops.split(1, 2, state)
-    j_logits = linear([inputs, h], num_units, False, scope="j_logits")
+def iterative_cell(inputs, num_units, iteration_activation, iteration_count, iteration_prob):
+    j_logits = linear([inputs], num_units, False, scope="j_logits")
     j_displacement = linear([iteration_count], num_units, True, scope="j_displacement")
     opposed_j = tanh( - j_logits + j_displacement)
     new_info = tanh(tanh(j_logits + j_displacement) + tanh(opposed_j * sigmoid(opposed_j)))
-    concat = linear([new_info, h], 3 * num_units, True)
+    logits = linear([new_info], num_units, True)
 
-    # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-    i, f, o = array_ops.split(1, 3, concat)
-
-    new_c = tanh(c) * sigmoid(f + forget_bias) + sigmoid(i) * new_info
-    new_h = tanh(new_c) * sigmoid(o)
-
-    # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
-    new_h = new_h * iteration_activation + h * (1 - iteration_activation)
-    new_c = new_c * iteration_activation + c * (1 - iteration_activation)
-
-    new_state = array_ops.concat(1, [new_c, new_h])
-    new_output = new_h * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = logits * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     p = linear([inputs, new_output], num_units, True, scope= "iteration_activation")
