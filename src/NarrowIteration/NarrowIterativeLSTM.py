@@ -135,15 +135,15 @@ def iterativeLSTM_LoopCondition(inputs, state, num_units, forget_bias, iteration
 
 
 def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, iteration_count, iteration_prob):
-    # This function aplies the standard LSTM calculation plus the calculation of the evidence to infer if another iteration is needed.
+    # This function applies the standard LSTM calculation plus the calculation of the evidence to infer if another iteration is needed.
 
     # "BasicLSTM"
     # Parameters of gates are concatenated into one multiply for efficiency.
     c, h = array_ops.split(1, 2, state)
-    j_logits = linear([inputs, h], num_units, False, scope="j_logits")
-    j_displacement = linear([iteration_count], num_units, True, scope="j_displacement")
-    opposed_j = tanh( - j_logits + j_displacement)
-    new_info = tanh(tanh(j_logits + j_displacement) + tanh(opposed_j * sigmoid(opposed_j)))
+    concat = linear([inputs, h], 3 * num_units, True, scope="j_logits")
+    j_logits, j_displacement, j_in = array_ops.split(1, 3, concat)
+    j = tanh(j_logits + j_displacement)
+    new_info = j - j * sigmoid(j_in)
     concat = linear([new_info, h], 3 * num_units, True)
 
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
