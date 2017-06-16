@@ -150,7 +150,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
 
     new_info = j + not_j * sigmoid(j_control)
 
-    concat = linear([new_info, h], 3 * num_units, True)
+    concat = linear([inputs, h], 3 * num_units, True)
 
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
     i, f, o = array_ops.split(1, 3, concat)
