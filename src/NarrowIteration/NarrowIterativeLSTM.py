@@ -148,8 +148,8 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     j_control = linear([j], num_units, True, scope="j_control")
     not_j = tanh(- j_logits + j_displacement)
 
-    new_info = j_in + not_j * sigmoid(j_control)
-    
+    new_info = j + not_j * sigmoid(j_control)
+
     concat = linear([new_info, h], 3 * num_units, True)
 
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
