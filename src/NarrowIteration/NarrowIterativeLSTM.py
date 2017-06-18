@@ -11,7 +11,7 @@ from rnn_cell import *
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
     def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=50., initial_iterate_prob=0.5,
-                 iterate_prob_decay=0.5, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
+                 iterate_prob_decay=0.75, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
         self._device_to_run_at = device_to_run_at
 
         if internal_nn is None:
@@ -120,7 +120,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     do_keep_looping = tf.logical_and(tf.less(new_iteration_number, max_iterations), tf.equal(iteration_flag, tf.constant(1.0)))
 
-    new_iteration_prob = iteration_prob# * iteration_prob_decay
+    new_iteration_prob = iteration_prob * iteration_prob_decay
 
     #new_c, new_h = array_ops.split(1, 2, new_state)
 
