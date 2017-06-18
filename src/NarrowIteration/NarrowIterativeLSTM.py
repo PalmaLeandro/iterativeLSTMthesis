@@ -120,7 +120,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     do_keep_looping = tf.logical_and(tf.less(new_iteration_number, max_iterations), tf.equal(iteration_flag, tf.constant(1.0)))
 
-    new_iteration_prob = iteration_prob * iteration_prob_decay
+    new_iteration_prob = iteration_prob# * iteration_prob_decay
 
     #new_c, new_h = array_ops.split(1, 2, new_state)
 
@@ -166,10 +166,10 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     new_output = new_h * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
-    p = linear([j], num_units, True, scope= "iteration_activation")
+    #p = linear([j], num_units, True, scope= "iteration_activation")
 
 
-    new_iteration_activation = update_iteration_activations(iteration_activation, floor(sigmoid(p) + iteration_prob))
+    new_iteration_activation = update_iteration_activations(iteration_activation, floor(sigmoid(j) + iteration_prob))
 
     return new_output, new_state, new_iteration_activation
 
