@@ -5,6 +5,7 @@
 
 # In[1]:
 
+
 import tensorflow as tf
 from tensorflow.python.ops import variable_scope as vs
 from tensorflow.python.ops import array_ops
@@ -174,4 +175,326 @@ def variable_summaries(var, name, add_distribution=True, add_range=True, add_his
         if add_histogram:
             tf.histogram_summary(name, var)
 
+
+
+# In[ ]:
+
+
+
+import tensorflow as tf
+import pandas as pd
+import numpy as np
+import math
+
+
+flags = tf.app.flags
+flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate. Default will be 0.01 .')
+flags.DEFINE_integer('max_epochs', 1000, 'Number of epochs to run trainer.')
+flags.DEFINE_integer('hidden1', 4, 'Number of units in hidden layer 1.')
+flags.DEFINE_integer('hidden2', 5, 'Number of units in hidden layer 2.')
+flags.DEFINE_string('train_dir', '/Users/leandro/Documents/Repositories/FIUBA/determination/data', 
+                    'Directory to put the training data.')
+flags.DEFINE_string('log_dir', '/Users/leandro/Documents/Repositories/FIUBA/determination/logs', 
+                    'Directory to put the log.')
+
+flags.DEFINE_boolean(
+    "erase_logs_dir", True,
+    "An option to erase summaries in the logdir.")
+
+FIRST_LAYER_HIDDEN_UNITS = flags.FLAGS.hidden1
+SECONG_LAYER_HIDDEN_UNITS = flags.FLAGS.hidden2
+LEARNING_RATE = flags.FLAGS.learning_rate
+MAX_EPOCHS = flags.FLAGS.max_epochs
+DATA_DIR = flags.FLAGS.train_dir
+LOG_DIR = flags.FLAGS.log_dir
+NUM_CLASSES = 2
+ERASE_LOGS_DIR = flags.FLAGS.erase_logs_dir
+
+
+def init_dir(dir_path):
+  if tf.gfile.Exists(dir_path) and ERASE_LOGS_DIR is True:
+    tf.gfile.DeleteRecursively(dir_path)
+  tf.gfile.MakeDirs(dir_path)
+
+init_dir(LOG_DIR)
+
+
+# In[2]:
+
+
+df = pd.DataFrame({'X1':[0.0, 0.0, 1.0, 1.0], 'X2':[0.0, 1.0, 0.0, 1.0], 'X3':[0.0, 1.0, 1.0, 1.0], 'Y':[0.0, 1.0, 1.0, 2.0]})
+
+
+# In[3]:
+
+
+df.to_csv(DATA_DIR + '/input.csv', index=None)
+
+
+# In[4]:
+
+
+data = pd.read_csv(DATA_DIR + '/input.csv')
+NUM_CLASSES = len(df.Y.unique())
+BATCH_SIZE = len(data)
+
+
+# In[5]:
+
+
+print 'Number of values to predict: {}'.format(NUM_CLASSES)
+print 'Number of examples to learn simultaneously: {}'.format(len(data))
+
+
+# In[6]:
+
+
+inputs_data = data.ix[:, 0:len(data.columns)-1].as_matrix()
+if inputs_data is None:
+   inputs_data = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]
+
+
+# In[7]:
+
+
+label_data = np.squeeze(data.ix[:, len(data.columns) - 1:len(data.columns)].as_matrix())
+if label_data is None:
+   label_data = [0.0, 1.0, 1.0, 0.0]
+
+
+# In[8]:
+
+
+def dictionary_from_proto_buffer(proto_buffer):
+    summaries = {}
+    for val in proto_buffer.value:
+        # Assuming all summaries are scalars.
+        summaries[val.tag] = val.simple_value
+    return summaries
+
+def summarize_layer_determinations(layer_output):
+    number_of_components = layer_output.get_shape().dims[1].value
+    det_coefs = []
+    for i in range(number_of_components):  
+        unit_det_coeffs = []
+        for j in range(number_of_components):
+            corr_coef, update_op = tf.contrib.metrics.streaming_pearson_correlation(layer_output[:, i], 
+                                                                                    layer_output[:, j])
+            det_coef = update_op**2
+            tf.summary.scalar('determination_' + str(i) + '_and_' + str(j), det_coef)
+            if j != i:
+                unit_det_coeffs.append(det_coef)
+        total_determination_of_unit = tf.reduce_sum(unit_det_coeffs)
+        det_coefs.append(total_determination_of_unit)
+        tf.summary.scalar('determination_of_' + str(i) + '_unit', total_determination_of_unit)
+    
+
+def build_model_layer(inputs, number_of_units, scope_name, use_relu, add_summaries=False):
+    with tf.name_scope(scope_name):
+        weights = tf.Variable(tf.truncated_normal([inputs.get_shape().dims[1].value, number_of_units], 
+                                                 stddev=1.0 / math.sqrt(float(number_of_units))), name='weights')
+        
+        biases = tf.Variable(tf.zeros([number_of_units]), name='biases')
+        
+        logits = tf.matmul(inputs, weights) + biases
+        
+        layer_output = tf.nn.relu(logits) if use_relu is True else logits
+
+        if add_summaries is True:
+            summarize_layer_determinations(layer_output)
+
+    return layer_output
+        
+
+def build_model(inputs):
+    first_layer_output = build_model_layer(inputs=inputs, 
+                                          number_of_units=FIRST_LAYER_HIDDEN_UNITS,
+                                          scope_name='first_hidden_layer',
+                                          use_relu=True,
+                                          add_summaries=True)
+    
+    second_layer_output = build_model_layer(inputs=first_layer_output, 
+                                            number_of_units=SECONG_LAYER_HIDDEN_UNITS,
+                                            scope_name='second_hidden_layer',
+                                            use_relu=True,
+                                            add_summaries=True)
+    
+    output = build_model_layer(inputs=second_layer_output, 
+                               number_of_units=NUM_CLASSES,
+                               scope_name='logits',
+                               use_relu=False,
+                               add_summaries=False)
+    return output
+
+
+# In[9]:
+
+
+with tf.Session() as sess:
+    inputs = tf.placeholder(dtype=tf.float32, shape=[BATCH_SIZE, NUM_CLASSES])
+    label = tf.placeholder(dtype=tf.float32, shape=[BATCH_SIZE])
+    
+    model_output = build_model(inputs)
+    
+    loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(model_output, tf.to_int64(label)), 
+                          name='xentropy_mean')
+    
+    global_step = tf.Variable(0, name='global_step', trainable=False)
+    
+    optimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE)
+    training = optimizer.minimize(loss, global_step=global_step)
+    
+    merge_summaries = tf.summary.merge_all()
+    summary_writer = tf.summary.FileWriter(LOG_DIR, sess.graph)
+    
+    sess.run(tf.local_variables_initializer())
+    sess.run(tf.global_variables_initializer())
+    
+    for epoch in range(MAX_EPOCHS):
+        model_feed = {inputs:inputs_data, label:label_data}
+
+        _, loss_value, summaries = sess.run([training, loss, merge_summaries], feed_dict=model_feed)
+        if epoch // 100 == 0:
+            summary_writer.add_summary(summaries, global_step=epoch)
+            summary_writer.flush()
+            print 'epoch {}, loss = {}'.format(epoch, loss_value)
+    
+    summary_writer.close()
+    sess.close()
+
+
+# In[10]:
+
+
+dictionary = dictionary_from_proto_buffer(tf.Summary.FromString(summaries))
+
+
+# In[11]:
+
+
+def separate_layer_units_from_dictionary(dictionary):
+    layers = {}
+    for annotation in dictionary.keys():
+        if 'unit' in annotation:
+            layer_name, unit_name = annotation.rsplit('/', 1)
+            if layer_name in layers:
+                layers[layer_name].append(dict([('name', unit_name), ('value', dictionary[annotation])]))
+            else:
+                layers[layer_name] = [dict([('name', unit_name), ('value', dictionary[annotation])])]
+    return layers
+
+
+# In[12]:
+
+
+layers_units_annotations = separate_layer_units_from_dictionary(dictionary)
+layers_units_annotations
+
+
+# In[13]:
+
+
+def min_and_max_units_determinations_from_layer(layer_units_annotations):
+    max_determination_unit = {'name':'', 'value':0.0}
+    min_determination_unit = {'name':'', 'value':1.0}
+    for unit_annotation in layer_units_annotations:
+        if 'determination' in unit_annotation['name']:
+            if max_determination_unit['value'] < unit_annotation['value']:
+                max_determination_unit = unit_annotation
+            if min_determination_unit['value'] > unit_annotation['value']:
+                min_determination_unit = unit_annotation
+    return max_determination_unit, min_determination_unit
+
+
+# In[14]:
+
+
+def layers_candidates_to_substraction_from_nn_dictionary(dictionary):
+    layers_candidates_to_substraction = {}
+    layer_candidate_to_reduction = {'name': None, 'value':0., 'cell':None}
+    for layer in dictionary:
+        max_determination_unit, min_determination_unit = min_and_max_units_determinations_from_layer(dictionary[layer])
+        layers_candidates_to_substraction[layer] = max_determination_unit
+        if layer_candidate_to_reduction['value'] < max_determination_unit['value']/len(dictionary[layer]):
+           layer_candidate_to_reduction = {'name':layer, 
+                                           'value':max_determination_unit['value'], 
+                                           'cell':max_determination_unit} 
+    return layers_candidates_to_substraction, layer_candidate_to_reduction
+
+
+# In[15]:
+
+
+layers_candidates_to_substraction, layer_candidate_to_reduction = layers_candidates_to_substraction_from_nn_dictionary(layers_units_annotations)
+
+
+# #### Cell of first layer with lowest Shapley value
+
+# In[16]:
+
+
+layers_candidates_to_substraction['first_hidden_layer']['name']
+
+
+# #### Cell of second layer with lowest Shapley value
+
+# In[17]:
+
+
+layers_candidates_to_substraction['second_hidden_layer']['name']
+
+
+# #### Layer with cell with lowest Shapley value
+
+# In[18]:
+
+
+layer_candidate_to_reduction
+
+
+# In[19]:
+
+
+from IPython.display import clear_output, Image, display, HTML
+
+def strip_consts(graph_def, max_const_size=32):
+    """Strip large constant values from graph_def."""
+    strip_def = tf.GraphDef()
+    for n0 in graph_def.node:
+        n = strip_def.node.add() 
+        n.MergeFrom(n0)
+        if n.op == 'Const':
+            tensor = n.attr['value'].tensor
+            size = len(tensor.tensor_content)
+            if size > max_const_size:
+                tensor.tensor_content = "<stripped %d bytes>"%size
+    return strip_def
+
+def show_graph(graph_def, max_const_size=32):
+    """Visualize TensorFlow graph."""
+    if hasattr(graph_def, 'as_graph_def'):
+        graph_def = graph_def.as_graph_def()
+    strip_def = strip_consts(graph_def, max_const_size=max_const_size)
+    code = """
+        <script>
+          function load() {{
+            document.getElementById("{id}").pbtxt = {data};
+          }}
+        </script>
+        <link rel="import" href="https://tensorboard.appspot.com/tf-graph-basic.build.html" onload=load()>
+        <div style="height:600px">
+          <tf-graph-basic id="{id}"></tf-graph-basic>
+        </div>
+    """.format(data=repr(str(strip_def)), id='graph'+str(np.random.rand()))
+
+    iframe = """
+        <iframe seamless style="width:1200px;height:620px;border:0" srcdoc="{}"></iframe>
+    """.format(code.replace('"', '&quot;'))
+    display(HTML(iframe))
+
+
+# In[20]:
+
+
+show_graph(tf.get_default_graph().as_graph_def())
 
