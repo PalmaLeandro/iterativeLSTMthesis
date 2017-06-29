@@ -157,7 +157,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     #p = linear([j], num_units, True, scope= "iteration_activation")
 
-    new_iteration_activation = update_iteration_activations(iteration_activation, tf.ones(tf.shape(input)))
+    new_iteration_activation = update_iteration_activations(iteration_activation, tf.ones(tf.shape(inputs)))
 
     return new_output, new_state, new_iteration_activation
 
