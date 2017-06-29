@@ -140,9 +140,9 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # "BasicLSTM"
     # Parameters of gates are concatenated into one multiply for efficiency.
     c, h = array_ops.split(1, 2, state)
-    concat = linear([inputs, h], 3 * num_units, True)
+    concat = linear([inputs, h], 4 * num_units, True)
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-    i, j, f, o = array_ops.split(1, 3, concat)
+    i, j, f, o = array_ops.split(1, 4, concat)
 
     new_c = c * sigmoid(f + forget_bias) + sigmoid(i) * tanh(j)
     new_h = tanh(new_c) * sigmoid(o)
