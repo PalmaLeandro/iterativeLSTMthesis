@@ -217,7 +217,7 @@ class MediumConfig(object):
   max_grad_norm = 5
   num_layers = 1
   num_steps = 35
-  hidden_size = 650
+  hidden_size = 200
   max_epoch = 14
   max_max_epoch = 39
   keep_prob = 0.5
@@ -334,8 +334,6 @@ def main(_):
 
   config = get_config()
   eval_config = get_config()
-  eval_config.batch_size = 1
-  eval_config.num_steps = 1
 
   with tf.Graph().as_default(), tf.Session() as session:
 
