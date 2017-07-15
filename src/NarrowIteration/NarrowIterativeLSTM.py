@@ -9,7 +9,7 @@ from rnn_cell import *
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
-    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=2., initial_iterate_prob=0.5,
+    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=3., initial_iterate_prob=0.5,
                  iterate_prob_decay=0.5, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
         self._device_to_run_at = device_to_run_at
 
@@ -144,7 +144,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
 
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    new_output = tanh(new_h + inputs) * sigmoid(o)# * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = new_h * sigmoid(o)# * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     p = linear([inputs, new_output], num_units, True,scope= "iteration_activation")
