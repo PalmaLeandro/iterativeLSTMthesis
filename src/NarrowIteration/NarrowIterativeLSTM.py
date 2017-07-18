@@ -9,7 +9,7 @@ from rnn_cell import *
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
-    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=3., initial_iterate_prob=0.5,
+    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=5., initial_iterate_prob=0.5,
                  iterate_prob_decay=0.5, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
         self._device_to_run_at = device_to_run_at
 
@@ -114,7 +114,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     new_c, new_h = array_ops.split(1, 2, new_state)
 
-    #new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
+    new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
 
     return output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, do_keep_looping
 
@@ -135,19 +135,19 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     i, j, f, o = array_ops.split(1, 4, concat)
 
     #new_info = sigmoid(i) * tanh(tanh(j) + inputs)
-    new_c = tanh(c) * sigmoid(f + forget_bias) + sigmoid(i) * tanh(j)
+    new_c = tanh(c * sigmoid(f + forget_bias)) + sigmoid(i) * tanh(j)
     new_h = tanh(new_c)
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
-    new_h = new_h * iteration_activation + h * (1 - iteration_activation)
-    new_c = new_c * iteration_activation + c * (1 - iteration_activation)
+    #new_h = new_h * iteration_activation + h * (1 - iteration_activation)
+    #new_c = new_c * iteration_activation + c * (1 - iteration_activation)
 
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    new_output = tanh(new_h * sigmoid(o) + inputs)# * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = tanh(new_h + inputs) * sigmoid(o)# * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
-    p = linear([inputs, new_output], num_units, True,scope= "iteration_activation")
+    #p = linear([inputs, new_output], num_units, True,scope= "iteration_activation")
 
 
     new_iteration_activation = update_iteration_activations(iteration_activation, tf.ones(tf.shape(inputs)))
