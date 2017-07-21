@@ -129,13 +129,19 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # "BasicLSTM"
     # Parameters of gates are concatenated into one multiply for efficiency.
     c, h = array_ops.split(1, 2, state)
-    concat = linear([inputs, h, iteration_activation], 4 * num_units, True)
+    concat = linear([inputs, h], 3 * num_units, True)
 
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-    i, j, f, o = array_ops.split(1, 4, concat)
+    i, f, o = array_ops.split(1, 3, concat)
 
-    #new_info = sigmoid(i) * tanh(tanh(j) + inputs)
-    new_c = tanh(c * sigmoid(f + forget_bias)) + sigmoid(i) * tanh(j * inputs)
+    j_displacement = linear([inputs, h, iteration_activation], num_units, True)
+
+    j = linear([inputs], num_units, True)
+
+    j_norm = j + j_displacement
+    new_info = tanh(j_norm) - sigmoid(j_norm ** 2) * tanh(j_norm)
+
+    new_c = tanh(c * sigmoid(f + forget_bias)) + sigmoid(i) * new_info
     new_h = tanh(new_c) * sigmoid(o)
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
