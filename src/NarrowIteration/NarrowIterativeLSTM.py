@@ -134,9 +134,9 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
     i, f, o = array_ops.split(1, 3, concat)
 
-    j_displacement = linear([inputs, h, iteration_activation], num_units, True)
+    j_displacement = linear([inputs, h, iteration_activation], num_units, True, scope='j_displacement')
 
-    j = linear([inputs], num_units, True)
+    j = linear([inputs], num_units, True, scope='j')
 
     j_norm = j + j_displacement
     new_info = tanh(j_norm) - sigmoid(j_norm ** 2) * tanh(j_norm)
