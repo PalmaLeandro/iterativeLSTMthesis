@@ -9,7 +9,7 @@ from rnn_cell import *
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
-    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=5., initial_iterate_prob=0.5,
+    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=10., initial_iterate_prob=0.5,
                  iterate_prob_decay=0.5, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
         self._device_to_run_at = device_to_run_at
 
@@ -57,7 +57,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         with vs.variable_scope(scope or type(self).__name__):
             loop_vars = [input, state, tf.zeros([self.output_size]), tf.constant(0.0), tf.constant(0.0),
                          tf.constant(self._max_iteration_constant), tf.constant(self._initial_iterate_prob_constant),
-                         tf.constant(self._iterate_prob_decay_constant), tf.ones(tf.shape(input)), tf.constant(True)]
+                         tf.constant(self._iterate_prob_decay_constant), tf.ones(input.get_shape()), tf.constant(True)]
             loop_vars[0], loop_vars[1], loop_vars[2], loop_vars[3], loop_vars[4], loop_vars[5], loop_vars[6], loop_vars[
                 7], loop_vars[8], loop_vars[9] = tf.while_loop(iterativeLSTM_LoopCondition, iterativeLSTM_Iteration, loop_vars)
 
@@ -69,7 +69,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
     def add_pre_execution_summaries(self, input, state):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name +
                                                                   "/pre_execution_input_entropy"):
-            variable_summaries(calculate_feature_entropy(input),
+            variable_summaries(calculate_feature_entropy(sigmoid(input)),
                                tf.get_variable_scope().name + "/pre_execution_input_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/pre_execution_input_entropy")
 
@@ -79,15 +79,15 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
             variable_summaries(number_of_iterations_performed, tf.get_variable_scope().name+"/iterations_performed")
             self._already_added_summaries.append(tf.get_variable_scope().name+"/iterations_performed")
 
-            variable_summaries(calculate_feature_entropy(final_output),
+            variable_summaries(calculate_feature_entropy(sigmoid(final_output)),
                                tf.get_variable_scope().name + "/post_execution_output_entropy", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/post_execution_output_entropy")
 
-            variable_summaries(calculate_feature_vectors_kl_divergence(initial_input, final_output),
+            variable_summaries(calculate_feature_vectors_kl_divergence(sigmoid(initial_input), sigmoid(final_output)),
                                tf.get_variable_scope().name + "/improved_from_former_kl_divergence", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/improved_from_former_kl_divergence")
 
-            variable_summaries(calculate_feature_vectors_kl_divergence(final_output, initial_input),
+            variable_summaries(calculate_feature_vectors_kl_divergence(sigmoid(final_output), sigmoid(initial_input)),
                                tf.get_variable_scope().name + "/former_from_improved_kl_divergence", add_histogram=False)
             self._already_added_summaries.append(tf.get_variable_scope().name + "/former_from_improved_kl_divergence")
 
@@ -112,7 +112,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     new_iteration_prob = iteration_prob * iteration_prob_decay
 
-    new_c, new_h = array_ops.split(1, 2, new_state)
+    #new_c, new_h = array_ops.split(1, 2, new_state)
 
     new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
 
@@ -129,19 +129,12 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # "BasicLSTM"
     # Parameters of gates are concatenated into one multiply for efficiency.
     c, h = array_ops.split(1, 2, state)
-    concat = linear([inputs, h], 3 * num_units, True)
+    concat = linear([inputs, h, iteration_activation], 4 * num_units, True)
 
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-    i, f, o = array_ops.split(1, 3, concat)
+    i, j, f, o = array_ops.split(1, 4, concat)
 
-    j_displacement = linear([inputs, h, iteration_activation], num_units, True, scope='j_displacement')
-
-    j = linear([inputs], num_units, True, scope='j')
-
-    j_norm = j + j_displacement
-    new_info = tanh(j_norm) - sigmoid(j_norm ** 2) * tanh(j_norm)
-
-    new_c = tanh(c * sigmoid(f + forget_bias)) + sigmoid(i) * new_info
+    new_c = tanh(c * sigmoid(f + forget_bias)) + sigmoid(i) * tanh(j)
     new_h = tanh(new_c) * sigmoid(o)
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
@@ -150,10 +143,10 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
 
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    new_output = new_h * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = (new_h + inputs * (1 - sigmoid(o))) * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
-    p = linear([inputs, new_output], num_units, True,scope= "iteration_activation")
+    p = linear([inputs, new_h, new_output], num_units, True,scope= "iteration_activation")
 
 
     new_iteration_activation = update_iteration_activations(iteration_activation, tf.floor(sigmoid(p) + iteration_prob))
@@ -164,7 +157,7 @@ def update_iteration_activations(current_iteration_activations, new_iteration_ac
     # It is possible that other instances of the batch activate this cell, hence we need to avoid this
     # by activate only those activations were this instance of the batch is actually activated
     batch_iteration_activations = tf.reduce_max(current_iteration_activations, 1, True)
-    batch_iteration_activations_extended = tf.tile(batch_iteration_activations,[1, new_iteration_activations.get_shape().dims[1].value])
+    batch_iteration_activations_extended = tf.tile(batch_iteration_activations,[1, current_iteration_activations.get_shape().dims[1].value])
 
     return new_iteration_activations * batch_iteration_activations_extended
 
