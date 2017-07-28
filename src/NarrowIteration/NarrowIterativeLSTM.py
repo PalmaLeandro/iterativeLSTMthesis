@@ -10,7 +10,7 @@ from rnn_cell import *
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
-    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=50., initial_iterate_prob=0.5,
+    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=10., initial_iterate_prob=0.5,
                  iterate_prob_decay=0.75, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
         self._device_to_run_at = device_to_run_at
 
@@ -155,7 +155,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
     i, f, o = array_ops.split(1, 3, concat)
 
-    new_c = tanh(c) * sigmoid(f + forget_bias) + sigmoid(i) * new_info
+    new_c = tanh(c * sigmoid(f + forget_bias)) + sigmoid(i) * new_info
     new_h = tanh(new_c) * sigmoid(o)
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
