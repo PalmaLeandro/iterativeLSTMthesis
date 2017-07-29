@@ -124,7 +124,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     #new_c, new_h = array_ops.split(1, 2, new_state)
 
-    #new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
+    new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
 
     return output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, iteration_count, do_keep_looping
 
@@ -145,15 +145,15 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
 
     j = tanh(j_logits + j_displacement)
 
-    j_control = linear([j], num_units, True, scope="j_control")
+    j_control = linear([j], num_units, False, scope="j_control")
     not_j = tanh(- j_logits + j_displacement)
 
     new_info = j + not_j * sigmoid(j_control)
 
-    concat = linear([inputs, h], 3 * num_units, True)
+    concat = linear([inputs, h, iteration_count], 4 * num_units, True)
 
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-    i, f, o = array_ops.split(1, 3, concat)
+    i, f, o, p = array_ops.split(1, 3, concat)
 
     new_c = tanh(c * sigmoid(f + forget_bias)) + sigmoid(i) * new_info
     new_h = tanh(new_c) * sigmoid(o)
@@ -167,7 +167,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     new_output = new_h * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
-    p = linear([inputs, new_h], num_units, True, scope= "iteration_activation")
+    #p = linear([inputs, new_h], num_units, True, scope= "iteration_activation")
 
 
     new_iteration_activation = update_iteration_activations(iteration_activation, floor(sigmoid(j) + iteration_prob))
