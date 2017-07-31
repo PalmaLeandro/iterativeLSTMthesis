@@ -145,7 +145,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
 
     info = tanh(logits + displacement)
 
-    control = linear([j], 4 * num_units, True, scope="j_control")
+    control = linear([info], 4 * num_units, True, scope="j_control")
     not_info = tanh(- logits + displacement)
 
     new_info = info + not_info * sigmoid(control)
