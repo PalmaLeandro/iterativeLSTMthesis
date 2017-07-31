@@ -124,7 +124,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     #new_c, new_h = array_ops.split(1, 2, new_state)
 
-    #new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
+    new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
 
     return output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, iteration_count, do_keep_looping
 
@@ -140,34 +140,34 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # "BasicLSTM"
     # Parameters of gates are concatenated into one multiply for efficiency.
     c, h = array_ops.split(1, 2, state)
-    j_logits = linear([inputs], num_units, False, scope="j_logits")
-    j_displacement = linear([iteration_count, h], num_units, True, scope="j_displacement")
+    logits = linear([inputs], 4 * num_units, False, scope="j_logits")
+    displacement = linear([iteration_count, h], 4 * num_units, True, scope="j_displacement")
 
-    j = tanh(j_logits + j_displacement)
+    info = tanh(j_logits + j_displacement)
 
-    j_control = linear([j], num_units, True, scope="j_control")
-    not_j = tanh(- j_logits + j_displacement)
+    control = linear([j], num_units, True, scope="j_control")
+    not_info = tanh(- j_logits + j_displacement)
 
-    new_info = j + not_j * sigmoid(j_control)
+    new_info = info + not_info * sigmoid(control)
 
-    concat = linear([iteration_count, inputs, h], 3 * num_units, True)
+    #concat = linear([iteration_count, inputs, h], 3 * num_units, True)
 
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-    i, f, o = array_ops.split(1, 3, concat)
+    i, f, o, j = array_ops.split(1, 4, concat)
 
-    new_c = tanh(c * sigmoid(f + forget_bias)) + sigmoid(i) * new_info
+    new_c = tanh(c * sigmoid(f + forget_bias)) + sigmoid(i) * j
     new_h = tanh(new_c) * sigmoid(o)
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
-    #new_h = new_h * iteration_activation + h * (1 - iteration_activation)
-    #new_c = new_c * iteration_activation + c * (1 - iteration_activation)
+    new_h = new_h * iteration_activation + h * (1 - iteration_activation)
+    new_c = new_c * iteration_activation + c * (1 - iteration_activation)
 
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    new_output = new_h# * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = new_h * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
-    p = linear([iteration_count, inputs, new_h], 1, True, scope= "iteration_activation")
+    p = linear([inputs, new_h], 1, True, scope= "iteration_activation")
 
 
     new_iteration_activation = update_iteration_activations(iteration_activation, floor(sigmoid(p) + iteration_prob))
