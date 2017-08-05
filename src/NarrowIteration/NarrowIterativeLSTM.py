@@ -143,7 +143,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     concat = linear([iteration_count, inputs, h], 4 * num_units, True)
 
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-    i, f, o, j = array_ops.split(1, 4, new_info)
+    i, f, o, j = array_ops.split(1, 4, concat)
 
     new_c = tanh(c * sigmoid(f + forget_bias)) + sigmoid(i) * tanh(j)
     new_h = tanh(new_c)
