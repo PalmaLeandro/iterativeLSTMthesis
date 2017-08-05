@@ -10,7 +10,7 @@ from rnn_cell import *
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
-    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=4., initial_iterate_prob=0.5,
+    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=10., initial_iterate_prob=0.75,
                  iterate_prob_decay=0.75, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
         self._device_to_run_at = device_to_run_at
 
@@ -140,23 +140,13 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # "BasicLSTM"
     # Parameters of gates are concatenated into one multiply for efficiency.
     c, h = array_ops.split(1, 2, state)
-    logits = linear([inputs], 4 * num_units, False, scope="j_logits")
-    displacement = linear([iteration_count, h], 4 * num_units, True, scope="j_displacement")
-
-    info = tanh(logits + displacement)
-
-    control = linear([info], 4 * num_units, True, scope="j_control")
-    not_info = tanh(- logits + displacement)
-
-    new_info = info + not_info * sigmoid(control**2)
-
-    #concat = linear([iteration_count, inputs, h], 4 * num_units, True)
+    concat = linear([iteration_count, inputs, h], 4 * num_units, True)
 
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
     i, f, o, j = array_ops.split(1, 4, new_info)
 
     new_c = tanh(c * sigmoid(f + forget_bias)) + sigmoid(i) * tanh(j)
-    new_h = tanh(new_c) * sigmoid(o)
+    new_h = tanh(new_c)
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
     new_h = new_h * iteration_activation + h * (1 - iteration_activation)
@@ -164,10 +154,10 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
 
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    new_output = tanh(new_h + inputs) * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = tanh(new_h + inputs) * sigmoid(o) * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
-    p = linear([inputs, new_h], 1, True, scope= "iteration_activation")
+    p = linear([inputs, new_output], 1, True, scope= "iteration_activation")
 
 
     new_iteration_activation = update_iteration_activations(iteration_activation, floor(sigmoid(p) + iteration_prob))
