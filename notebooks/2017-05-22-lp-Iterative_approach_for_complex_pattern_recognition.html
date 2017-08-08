@@ -11,8 +11,8 @@
 *
 */
 /*!
- * Bootstrap v3.3.7 (http://getbootstrap.com)
- * Copyright 2011-2016 Twitter, Inc.
+ * Bootstrap v3.3.6 (http://getbootstrap.com)
+ * Copyright 2011-2015 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
@@ -1107,6 +1107,7 @@ a:focus {
   text-decoration: underline;
 }
 a:focus {
+  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -2535,6 +2536,7 @@ select[size] {
 input[type="file"]:focus,
 input[type="radio"]:focus,
 input[type="checkbox"]:focus {
+  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -3025,6 +3027,7 @@ select[multiple].input-lg {
 .btn.focus,
 .btn:active.focus,
 .btn.active.focus {
+  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -8755,9 +8758,6 @@ body > #header .header-bar {
     margin-left: 10px;
   }
 }
-[dir="rtl"] #ipython_notebook {
-  float: right !important;
-}
 #noscript {
   width: auto;
   padding-top: 16px;
@@ -8960,14 +8960,8 @@ span#login_widget > .button .badge,
  *
  * Author: Jupyter Development Team
  */
-[dir="rtl"] #tabs li {
-  float: right;
-}
 ul#tabs {
   margin-bottom: 4px;
-}
-[dir="rtl"] ul#tabs {
-  margin-right: 0px;
 }
 ul#tabs a {
   padding-top: 6px;
@@ -8990,16 +8984,6 @@ ul.breadcrumb span {
 }
 .list_toolbar .tree-buttons {
   padding-top: 1px;
-}
-[dir="rtl"] .list_toolbar .tree-buttons {
-  float: left !important;
-}
-[dir="rtl"] .list_toolbar .pull-right {
-  padding-top: 1px;
-  float: left !important;
-}
-[dir="rtl"] .list_toolbar .pull-left {
-  float: right !important;
 }
 .dynamic-buttons {
   padding-top: 3px;
@@ -9136,9 +9120,6 @@ ul.breadcrumb span {
 #tree-selector {
   padding-right: 0px;
 }
-[dir="rtl"] #tree-selector a {
-  float: right;
-}
 #button-select-all {
   min-width: 50px;
 }
@@ -9228,9 +9209,6 @@ ul#new-menu {
   left: auto;
   right: 0;
 }
-[dir="rtl"] #new-menu {
-  text-align: right;
-}
 .kernel-menu-icon {
   padding-right: 12px;
   width: 24px;
@@ -9275,9 +9253,6 @@ ul#new-menu {
 }
 #running .panel-group .panel .panel-body .list_container .list_item:last-child {
   border-bottom: 0px;
-}
-[dir="rtl"] #running .col-sm-8 {
-  float: right !important;
 }
 .delete-button {
   display: none;
@@ -9574,7 +9549,6 @@ div.cell.selected.jupyter-soft-selected {
   }
 }
 div.inner_cell {
-  min-width: 0;
   /* Old browsers */
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -9595,6 +9569,11 @@ div.inner_cell {
   box-flex: 1;
   /* Modern browsers */
   flex: 1;
+}
+@-moz-document url-prefix() {
+  div.inner_cell {
+    overflow-x: hidden;
+  }
 }
 /* input_area and input_prompt must match in top border and margin for alignment */
 div.input_area {
@@ -11265,7 +11244,7 @@ div#pager .ui-resizable-handle::after {
 }
 .shortcut_key {
   display: inline-block;
-  width: 21ex;
+  width: 20ex;
   text-align: right;
   font-family: monospace;
 }
@@ -11577,7 +11556,6 @@ ul.typeahead-list > li > a {
   box-shadow: 0px 0px 12px 1px rgba(87, 87, 87, 0.2);
 }
 .terminal-app .terminal {
-  width: 100%;
   float: left;
   font-family: monospace;
   color: white;
@@ -11591,9 +11569,6 @@ ul.typeahead-list > li > a {
 .terminal-app .terminal dummy-screen {
   line-height: 1em;
   font-size: 14px;
-}
-.terminal-app .terminal .xterm-rows {
-  padding: 10px;
 }
 .terminal-app .terminal-cursor {
   color: black;
@@ -11654,10 +11629,8 @@ ul.typeahead-list > li > a {
 .highlight .mh { color: #666666 } /* Literal.Number.Hex */
 .highlight .mi { color: #666666 } /* Literal.Number.Integer */
 .highlight .mo { color: #666666 } /* Literal.Number.Oct */
-.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
 .highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
 .highlight .sc { color: #BA2121 } /* Literal.String.Char */
-.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
 .highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
 .highlight .s2 { color: #BA2121 } /* Literal.String.Double */
 .highlight .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
@@ -11668,11 +11641,9 @@ ul.typeahead-list > li > a {
 .highlight .s1 { color: #BA2121 } /* Literal.String.Single */
 .highlight .ss { color: #19177C } /* Literal.String.Symbol */
 .highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
-.highlight .fm { color: #0000FF } /* Name.Function.Magic */
 .highlight .vc { color: #19177C } /* Name.Variable.Class */
 .highlight .vg { color: #19177C } /* Name.Variable.Global */
 .highlight .vi { color: #19177C } /* Name.Variable.Instance */
-.highlight .vm { color: #19177C } /* Name.Variable.Magic */
 .highlight .il { color: #666666 } /* Literal.Number.Integer.Long */
     </style>
 <style type="text/css">
@@ -11726,7 +11697,9 @@ body {
 div#notebook {
   overflow: visible;
   border-top: none;
-}@media print {
+}
+
+@media print {
   div.cell {
     display: block;
     page-break-inside: avoid;
@@ -11747,7 +11720,7 @@ div#notebook {
 
 <!-- Loading mathjax macro -->
 <!-- Load mathjax -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
     <!-- MathJax configuration -->
     <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -11771,7 +11744,8 @@ div#notebook {
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11796,7 +11770,7 @@ div#notebook {
 
 <span class="k">class</span> <span class="nc">IterativeCell</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">max_iterations</span><span class="o">=</span><span class="mf">50.</span><span class="p">,</span> <span class="n">initial_iterate_prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">max_iterations</span><span class="o">=</span><span class="mf">50.</span><span class="p">,</span> <span class="n">initial_iterate_prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
                  <span class="n">iterate_prob_decay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">allow_cell_reactivation</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">add_summaries</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">device_to_run_at</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_device_to_run_at</span> <span class="o">=</span> <span class="n">device_to_run_at</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sixe</span> <span class="o">=</span> <span class="n">size</span>
@@ -11826,11 +11800,11 @@ div#notebook {
     <span class="k">def</span> <span class="nf">state_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_nn</span><span class="o">.</span><span class="n">state_size</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_add_summaries</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_pre_execution_summaries</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">vs</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">scope</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">vs</span><span class="o">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">scope</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">):</span>
             <span class="n">loop_vars</span> <span class="o">=</span> <span class="p">[</span><span class="nb">input</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">]),</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span>
                          <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_iteration_constant</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_initial_iterate_prob_constant</span><span class="p">),</span>
                          <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_iterate_prob_decay_constant</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="nb">input</span><span class="p">)),</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">input</span><span class="o">.</span><span class="n">get_shape</span><span class="p">()</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">]),</span>
@@ -11846,7 +11820,7 @@ div#notebook {
         <span class="k">return</span> <span class="n">loop_vars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">add_pre_execution_summaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="n">__contains__</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span>
                                                                   <span class="s2">&quot;/pre_execution_input_entropy&quot;</span><span class="p">):</span>
             <span class="n">variable_summaries</span><span class="p">(</span><span class="n">calculate_feature_entropy</span><span class="p">(</span><span class="nb">input</span><span class="p">),</span>
                                <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;/pre_execution_input_entropy&quot;</span><span class="p">,</span> <span class="n">add_histogram</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
@@ -11854,7 +11828,7 @@ div#notebook {
 
     <span class="k">def</span> <span class="nf">add_post_execution_summaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_input</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">,</span> <span class="n">final_output</span><span class="p">,</span> <span class="n">final_state</span><span class="p">,</span> <span class="n">number_of_iterations_performed</span><span class="p">,</span>
                                      <span class="n">final_iterate_prob</span><span class="p">,</span> <span class="n">final_iterations_counts</span><span class="p">,</span> <span class="n">final_iteration_activations</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;/iterations_performed&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="n">__contains__</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;/iterations_performed&quot;</span><span class="p">):</span>
             <span class="n">variable_summaries</span><span class="p">(</span><span class="n">number_of_iterations_performed</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;/iterations_performed&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_already_added_summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">get_variable_scope</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;/iterations_performed&quot;</span><span class="p">)</span>
 
@@ -11924,7 +11898,7 @@ div#notebook {
 
     <span class="n">new_iteration_activation</span> <span class="o">=</span> <span class="n">update_iteration_activations</span><span class="p">(</span><span class="n">iteration_activation</span><span class="p">,</span> <span class="n">floor</span><span class="p">(</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="n">iteration_prob</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="n">new_output</span><span class="p">,</span> <span class="n">new_state</span><span class="p">,</span> <span class="n">new_iteration_activation</span>
+    <span class="k">return</span> <span class="n">new_output</span><span class="p">,</span> <span class="n">new_iteration_activation</span>
 
 <span class="k">def</span> <span class="nf">update_iteration_activations</span><span class="p">(</span><span class="n">current_iteration_activations</span><span class="p">,</span> <span class="n">new_iteration_activations</span><span class="p">):</span>
     <span class="c1"># It is possible that other instances of the batch activate this cell, hence we need to avoid this</span>

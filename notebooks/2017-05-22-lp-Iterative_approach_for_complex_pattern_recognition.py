@@ -5,7 +5,6 @@
 
 # In[1]:
 
-
 import tensorflow as tf
 from tensorflow.python.ops import variable_scope as vs
 from tensorflow.python.ops import array_ops
@@ -145,7 +144,7 @@ def iterative_cell(inputs, num_units, iteration_activation, iteration_count, ite
 
     new_iteration_activation = update_iteration_activations(iteration_activation, floor(sigmoid(p) + iteration_prob))
 
-    return new_output, new_state, new_iteration_activation
+    return new_output, new_iteration_activation
 
 def update_iteration_activations(current_iteration_activations, new_iteration_activations):
     # It is possible that other instances of the batch activate this cell, hence we need to avoid this
@@ -178,7 +177,6 @@ def variable_summaries(var, name, add_distribution=True, add_range=True, add_his
 
 
 # In[ ]:
-
 
 
 import tensorflow as tf
