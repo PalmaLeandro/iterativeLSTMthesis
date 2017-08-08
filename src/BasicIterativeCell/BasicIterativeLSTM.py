@@ -124,6 +124,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
 
     new_c, new_h = array_ops.split(1, 2, new_state)
 
+    c, h = array_ops.split(1, 2, state)
     new_c = tf.cond(do_keep_looping, lambda: c, lambda: new_c)
     #new_h = tf.cond(do_keep_looping, lambda: h, lambda: new_h)
     new_state = array_ops.concat(1, [new_c, new_h])
