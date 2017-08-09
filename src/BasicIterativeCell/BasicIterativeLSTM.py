@@ -129,7 +129,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
     #new_h = tf.cond(do_keep_looping, lambda: h, lambda: new_h)
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    #new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
+    new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
 
     return output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, iteration_count, do_keep_looping
 
@@ -149,7 +149,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
     i, j, f, o = array_ops.split(1, 4, concat)
 
-    new_c = tanh(c) * sigmoid(f + forget_bias) + sigmoid(i) * tanh(j)
+    new_c = c * sigmoid(f + forget_bias) + sigmoid(i) * tanh(j)
     new_h = tanh(new_c) * sigmoid(o)
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
