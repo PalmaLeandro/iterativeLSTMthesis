@@ -109,7 +109,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
                             iteration_prob, iteration_prob_decay, iteration_activation, iteration_count, 
                             keep_looping):
 
-    output, new_state, new_iteration_activation = iterativeLSTM(inputs, state, num_units.get_shape().dims[0].value,
+    new_output, new_state, new_iteration_activation = iterativeLSTM(inputs, state, num_units.get_shape().dims[0].value,
                                                                                         forget_bias, iteration_activation,
                                                                                         iteration_count, iteration_prob)
     iteration_flag = tf.reduce_max(new_iteration_activation)
@@ -129,9 +129,9 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
     #new_h = tf.cond(do_keep_looping, lambda: h, lambda: new_h)
     new_state = array_ops.concat(1, [new_c, new_h])
 
-    new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: output)
+    new_output = tf.cond(do_keep_looping, lambda: inputs, lambda: new_output)
 
-    return output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, iteration_count, do_keep_looping
+    return new_output, new_state, num_units, forget_bias, new_iteration_number, max_iterations, new_iteration_prob, iteration_prob_decay, new_iteration_activation, iteration_count, do_keep_looping
 
 def iterativeLSTM_LoopCondition(inputs, state, num_units, forget_bias, iteration_number, max_iterations,
                                 iteration_prob, iteration_prob_decay, iteration_activation, iteration_count, 
@@ -157,7 +157,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     new_c = new_c * iteration_activation + c * (1 - iteration_activation)
 
     new_state = array_ops.concat(1, [new_c, new_h])
-    new_output = new_h * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = (new_h+inputs) * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     #p = linear([j], num_units, True, scope= "iteration_activation")
