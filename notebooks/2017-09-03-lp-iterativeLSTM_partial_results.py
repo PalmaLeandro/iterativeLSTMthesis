@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-# In[11]:
+# In[2]:
 
 results_df = pd.DataFrame([{
                             'Training epochs': 40, 
@@ -46,7 +46,7 @@ results_df = pd.DataFrame([{
                             'Units per layer': 200,
                             'Layers': 1,
                             'Iterations': 5,
-                            'Perplexity': 90.83},
+                            'Perplexity': 90.34},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 14 epochs',
@@ -60,7 +60,7 @@ results_df = pd.DataFrame([{
                             'Units per layer': 200,
                             'Layers': 1,
                             'Iterations': 7,
-                            'Perplexity': 91.08},
+                            'Perplexity': 90.15},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 14 epochs',
@@ -134,21 +134,21 @@ results_df = pd.DataFrame([{
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
-                            'Layers': 3,
+                            'Layers': 3, #??
                             'Iterations': 1,
                             'Perplexity': 85.92},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
-                            'Layers': 4,
+                            'Layers': 4, #??
                             'Iterations': 1,
                             'Perplexity': 91.16},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 14 epochs',
                             'Units per layer': 650,
-                            'Layers': 5,
+                            'Layers': 5, #??
                             'Iterations': 1,
                             'Perplexity': 97.15},
                           {
@@ -156,8 +156,22 @@ results_df = pd.DataFrame([{
                             'Learning rate scheme': 'decay by 0.8 after 14 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
+                            'Iterations': 3,
+                            'Perplexity': None}, #doing at mac
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
+                            'Units per layer': 650,
+                            'Layers': 1,
                             'Iterations': 4,
                             'Perplexity': 79.05},
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
+                            'Units per layer': 650,
+                            'Layers': 1,
+                            'Iterations': 6,
+                            'Perplexity': 80.21},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 14 epochs',
@@ -175,7 +189,7 @@ results_df = pd.DataFrame([{
 results_df['Total Units'] = results_df['Layers'] * results_df['Units per layer']
 
 
-# In[12]:
+# In[3]:
 
 g = sns.FacetGrid(results_df[results_df['Layers']==1].dropna(), hue='Units per layer', size=8)
 g.map(plt.scatter, 'Iterations', 'Perplexity')
@@ -185,7 +199,7 @@ g.add_legend()
 plt.show()
 
 
-# In[13]:
+# In[4]:
 
 g = sns.FacetGrid(results_df[results_df['Iterations']==1].dropna(), hue='Units per layer', size=8)
 g.map(plt.scatter, 'Layers', 'Perplexity')
@@ -195,7 +209,12 @@ g.add_legend()
 plt.show()
 
 
-# In[14]:
+# In[5]:
 
 results_df.sort_values('Total Units').dropna()
+
+
+# In[ ]:
+
+
 
