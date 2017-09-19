@@ -10,7 +10,7 @@ from rnn_cell import *
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
-    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=4., initial_iterate_prob=0.5,
+    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=3., initial_iterate_prob=0.5,
                  iterate_prob_decay=0.75, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
         self._device_to_run_at = device_to_run_at
 
@@ -52,8 +52,8 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         return self._internal_nn.state_size
 
     def __call__(self, input, state, scope=None):
-        if self._should_add_summaries:
-            self.add_pre_execution_summaries(input, state)
+        #if self._should_add_summaries:
+        #    self.add_pre_execution_summaries(input, state)
 
         with vs.variable_scope(scope or type(self).__name__):
             loop_vars = [input, state, tf.zeros([self.output_size]), tf.constant(0.0), tf.constant(0.0),
@@ -65,10 +65,10 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
         #_, loop_vars[0] = array_ops.split(1, 2, loop_vars[1])
 
-        if self._should_add_summaries:
-            self.add_post_execution_summaries(input, state, loop_vars[0] , loop_vars[1], loop_vars[4], None, loop_vars[9], None)
+        #if self._should_add_summaries:
+        #    self.add_post_execution_summaries(input, state, loop_vars[0] , loop_vars[1], loop_vars[4], None, loop_vars[9], None)
 
-        return loop_vars[0], loop_vars[1]
+        return tanh(loop_vars[0] + input), loop_vars[1]
 
     def add_pre_execution_summaries(self, input, state):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name +
@@ -149,7 +149,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
     i, j, f, o = array_ops.split(1, 4, concat)
 
-    new_c = tanh(c) * sigmoid(f + forget_bias) + sigmoid(i) * tanh(j)
+    new_c = c * sigmoid(f + forget_bias) + sigmoid(i) * tanh(j)
     new_h = tanh(new_c) * sigmoid(o)
 
     # Only a new state is exposed if the iteration gate in this unit of this batch activated the extra iteration.
@@ -157,7 +157,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     new_c = new_c * iteration_activation + c * (1 - iteration_activation)
 
     new_state = array_ops.concat(1, [new_c, new_h])
-    new_output = (new_h + inputs) * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = new_h * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     #p = linear([j], num_units, True, scope= "iteration_activation")

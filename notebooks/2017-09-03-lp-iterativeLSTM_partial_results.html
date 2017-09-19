@@ -11770,7 +11770,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([{</span>
@@ -11914,35 +11914,42 @@ div#notebook {
                             <span class="s1">&#39;Perplexity&#39;</span><span class="p">:</span> <span class="mf">97.15</span><span class="p">},</span>
                           <span class="p">{</span>
                             <span class="s1">&#39;Training epochs&#39;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> 
-                            <span class="s1">&#39;Learning rate scheme&#39;</span><span class="p">:</span> <span class="s1">&#39;decay by 0.8 after 14 epochs&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;Learning rate scheme&#39;</span><span class="p">:</span> <span class="s1">&#39;decay by 0.8 after 6 epochs&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;Units per layer&#39;</span><span class="p">:</span> <span class="mi">650</span><span class="p">,</span>
+                            <span class="s1">&#39;Layers&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                            <span class="s1">&#39;Iterations&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                            <span class="s1">&#39;Perplexity&#39;</span><span class="p">:</span> <span class="mf">81.23</span><span class="p">},</span> 
+                          <span class="p">{</span>
+                            <span class="s1">&#39;Training epochs&#39;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> 
+                            <span class="s1">&#39;Learning rate scheme&#39;</span><span class="p">:</span> <span class="s1">&#39;decay by 0.8 after 6 epochs&#39;</span><span class="p">,</span>
                             <span class="s1">&#39;Units per layer&#39;</span><span class="p">:</span> <span class="mi">650</span><span class="p">,</span>
                             <span class="s1">&#39;Layers&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                             <span class="s1">&#39;Iterations&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
                             <span class="s1">&#39;Perplexity&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">},</span> 
                           <span class="p">{</span>
                             <span class="s1">&#39;Training epochs&#39;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> 
-                            <span class="s1">&#39;Learning rate scheme&#39;</span><span class="p">:</span> <span class="s1">&#39;decay by 0.8 after 14 epochs&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;Learning rate scheme&#39;</span><span class="p">:</span> <span class="s1">&#39;decay by 0.8 after 6 epochs&#39;</span><span class="p">,</span>
                             <span class="s1">&#39;Units per layer&#39;</span><span class="p">:</span> <span class="mi">650</span><span class="p">,</span>
                             <span class="s1">&#39;Layers&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                             <span class="s1">&#39;Iterations&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
                             <span class="s1">&#39;Perplexity&#39;</span><span class="p">:</span> <span class="mf">79.05</span><span class="p">},</span> <span class="c1">#doing at mac</span>
                           <span class="p">{</span>
                             <span class="s1">&#39;Training epochs&#39;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> 
-                            <span class="s1">&#39;Learning rate scheme&#39;</span><span class="p">:</span> <span class="s1">&#39;decay by 0.8 after 14 epochs&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;Learning rate scheme&#39;</span><span class="p">:</span> <span class="s1">&#39;decay by 0.8 after 6 epochs&#39;</span><span class="p">,</span>
                             <span class="s1">&#39;Units per layer&#39;</span><span class="p">:</span> <span class="mi">650</span><span class="p">,</span>
                             <span class="s1">&#39;Layers&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                             <span class="s1">&#39;Iterations&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
                             <span class="s1">&#39;Perplexity&#39;</span><span class="p">:</span> <span class="mf">78.86</span><span class="p">},</span><span class="c1"># HP. c&#39; = c.. &amp; out=tanh(newh+in)</span>
                           <span class="p">{</span>
                             <span class="s1">&#39;Training epochs&#39;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> 
-                            <span class="s1">&#39;Learning rate scheme&#39;</span><span class="p">:</span> <span class="s1">&#39;decay by 0.8 after 14 epochs&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;Learning rate scheme&#39;</span><span class="p">:</span> <span class="s1">&#39;decay by 0.8 after 6 epochs&#39;</span><span class="p">,</span>
                             <span class="s1">&#39;Units per layer&#39;</span><span class="p">:</span> <span class="mi">650</span><span class="p">,</span>
                             <span class="s1">&#39;Layers&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                             <span class="s1">&#39;Iterations&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
                             <span class="s1">&#39;Perplexity&#39;</span><span class="p">:</span> <span class="mf">80.21</span><span class="p">},</span>
                           <span class="p">{</span>
                             <span class="s1">&#39;Training epochs&#39;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> 
-                            <span class="s1">&#39;Learning rate scheme&#39;</span><span class="p">:</span> <span class="s1">&#39;decay by 0.8 after 14 epochs&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;Learning rate scheme&#39;</span><span class="p">:</span> <span class="s1">&#39;decay by 0.8 after 6 epochs&#39;</span><span class="p">,</span>
                             <span class="s1">&#39;Units per layer&#39;</span><span class="p">:</span> <span class="mi">650</span><span class="p">,</span>
                             <span class="s1">&#39;Layers&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                             <span class="s1">&#39;Iterations&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>

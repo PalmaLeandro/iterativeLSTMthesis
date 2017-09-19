@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-# In[8]:
+# In[17]:
 
 results_df = pd.DataFrame([{
                             'Training epochs': 40, 
@@ -153,35 +153,42 @@ results_df = pd.DataFrame([{
                             'Perplexity': 97.15},
                           {
                             'Training epochs': 40, 
-                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
+                            'Units per layer': 650,
+                            'Layers': 1,
+                            'Iterations': 2,
+                            'Perplexity': 81.23}, 
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 3,
                             'Perplexity': None}, 
                           {
                             'Training epochs': 40, 
-                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 4,
                             'Perplexity': 79.05}, #doing at mac
                           {
                             'Training epochs': 40, 
-                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 5,
                             'Perplexity': 78.86},# HP. c' = c.. & out=tanh(newh+in)
                           {
                             'Training epochs': 40, 
-                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 6,
                             'Perplexity': 80.21},
                           {
                             'Training epochs': 40, 
-                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 8,
