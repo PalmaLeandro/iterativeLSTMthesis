@@ -3,14 +3,14 @@
 
 # ## Recopilacion parcial de resultados
 
-# In[1]:
+# In[2]:
 
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-# In[17]:
+# In[5]:
 
 results_df = pd.DataFrame([{
                             'Training epochs': 40, 
@@ -122,7 +122,7 @@ results_df = pd.DataFrame([{
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 1,
-                            'Perplexity': 85.48},
+                            'Perplexity': 83.61},
                           {
                             'Training epochs': 55, 
                             'Learning rate scheme': 'decay by 0.86 after 14 epochs',
@@ -164,7 +164,7 @@ results_df = pd.DataFrame([{
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 3,
-                            'Perplexity': None}, 
+                            'Perplexity': 79.65}, 
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
@@ -192,7 +192,7 @@ results_df = pd.DataFrame([{
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 8,
-                            'Perplexity': 78.84},# HP. c' = tanh(c).. & out=tanh(newh+in)
+                            'Perplexity': 78.64},# HP. c' = tanh(c).. & out=tanh(newh+in)
                           {
                             'Training epochs': 55, 
                             'Learning rate scheme': 'decay by 0.86 after 14 epochs',
@@ -203,7 +203,7 @@ results_df = pd.DataFrame([{
 results_df['Total Units'] = results_df['Layers'] * results_df['Units per layer']
 
 
-# In[9]:
+# In[6]:
 
 g = sns.FacetGrid(results_df[results_df['Layers']==1].dropna(), hue='Units per layer', size=8)
 g.map(plt.scatter, 'Iterations', 'Perplexity')
