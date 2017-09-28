@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-# In[5]:
+# In[7]:
 
 results_df = pd.DataFrame([{
                             'Training epochs': 40, 
@@ -156,8 +156,15 @@ results_df = pd.DataFrame([{
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
+                            'Iterations': 1,
+                            'Perplexity': 83.61},
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
+                            'Units per layer': 650,
+                            'Layers': 1,
                             'Iterations': 2,
-                            'Perplexity': 81.23}, 
+                            'Perplexity': 81.06}, 
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
@@ -171,21 +178,21 @@ results_df = pd.DataFrame([{
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 4,
-                            'Perplexity': 79.05}, #doing at mac
+                            'Perplexity': 79.22}, #doing at mac
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 5,
-                            'Perplexity': 78.86},# HP. c' = c.. & out=tanh(newh+in)
+                            'Perplexity': 78.53},# HP. c' = c.. & out=tanh(newh+in)
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 6,
-                            'Perplexity': 80.21},
+                            'Perplexity': 78.76},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
@@ -203,7 +210,7 @@ results_df = pd.DataFrame([{
 results_df['Total Units'] = results_df['Layers'] * results_df['Units per layer']
 
 
-# In[6]:
+# In[8]:
 
 g = sns.FacetGrid(results_df[results_df['Layers']==1].dropna(), hue='Units per layer', size=8)
 g.map(plt.scatter, 'Iterations', 'Perplexity')
