@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-# In[33]:
+# In[42]:
 
 results_df = pd.DataFrame([{
                             'Training epochs': 40, 
@@ -32,21 +32,21 @@ results_df = pd.DataFrame([{
                             'Units per layer': 200,
                             'Layers': 1,
                             'Iterations': 3,
-                            'Perplexity': 91.20},
+                            'Perplexity': 89.56},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 14 epochs',
                             'Units per layer': 200,
                             'Layers': 1,
                             'Iterations': 4,
-                            'Perplexity': 90.74},
+                            'Perplexity': 89.97},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 200,
                             'Layers': 1,
                             'Iterations': 5,
-                            'Perplexity': 90.34},
+                            'Perplexity': 89.94},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 14 epochs',
@@ -60,62 +60,28 @@ results_df = pd.DataFrame([{
                             'Units per layer': 200,
                             'Layers': 1,
                             'Iterations': 7,
-                            'Perplexity': 90.15},
+                            'Perplexity': 93.28},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 14 epochs',
                             'Units per layer': 200,
                             'Layers': 1,
                             'Iterations': 8,
-                            'Perplexity': 89.18},
+                            'Perplexity': 94.14},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 14 epochs',
                             'Units per layer': 200,
                             'Layers': 1,
                             'Iterations': 9,
-                            'Perplexity': 90.82},
+                            'Perplexity': 98.23},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 14 epochs',
-                            'Units per layer': 325,
+                            'Units per layer': 200,
                             'Layers': 1,
-                            'Iterations': 1,
-                            'Perplexity': 84.56},
-                          {
-                            'Training epochs': 40, 
-                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
-                            'Units per layer': 325,
-                            'Layers': 1,
-                            'Iterations': 2,
-                            'Perplexity': 83.05},
-                          {
-                            'Training epochs': 40, 
-                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
-                            'Units per layer': 325,
-                            'Layers': 1,
-                            'Iterations': 4,
-                            'Perplexity': 82.11},
-                          {
-                            'Training epochs': 40, 
-                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
-                            'Units per layer': 250,
-                            'Layers': 1,
-                            'Iterations': 5,
-                            'Perplexity': 84.12},
-                          {'Training epochs': 40, 
-                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
-                            'Units per layer': 250,
-                            'Layers': 1,
-                            'Iterations': 6,
-                            'Perplexity': 83.65},
-                          {
-                            'Training epochs': 40, 
-                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
-                            'Units per layer': 250,
-                            'Layers': 1,
-                            'Iterations': 7,
-                            'Perplexity': 91.41},
+                            'Iterations': 10,
+                            'Perplexity': None},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
@@ -125,7 +91,7 @@ results_df = pd.DataFrame([{
                             'Perplexity': 83.61},
                           {
                             'Training epochs': 55, 
-                            'Learning rate scheme': 'decay by 0.86 after 14 epochs',
+                            'Learning rate scheme': 'decay by 0.86 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 2,
                             'Iterations': 1,
@@ -146,7 +112,7 @@ results_df = pd.DataFrame([{
                             'Perplexity': 91.16},
                           {
                             'Training epochs': 40, 
-                            'Learning rate scheme': 'decay by 0.8 after 14 epochs',
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 5, #??
                             'Iterations': 1,
@@ -157,14 +123,14 @@ results_df = pd.DataFrame([{
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 1,
-                            'Perplexity': 83.61},
+                            'Perplexity': 83.60},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 2,
-                            'Perplexity': 81.06}, 
+                            'Perplexity': 81.05}, 
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
@@ -178,55 +144,104 @@ results_df = pd.DataFrame([{
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 4,
-                            'Perplexity': 79.22}, #doing at mac
+                            'Perplexity': 79.22},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 5,
-                            'Perplexity': 78.53},# HP. c' = c.. & out=tanh(newh+in)
+                            'Perplexity': 78.52},# HP. c' = c.. & out=tanh(newh+in)
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 6,
-                            'Perplexity': 78.73},
+                            'Perplexity': 78.76},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 7,
-                            'Perplexity': 78.50},
+                            'Perplexity': 78.51},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 8,
-                            'Perplexity': 78.49},
+                            'Perplexity': 78.62},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 9,
-                            'Perplexity': 78.88},# HP. c' = tanh(c).. & out=tanh(newh+in)
+                            'Perplexity': 78.88},
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
+                            'Units per layer': 650,
+                            'Layers': 1,
+                            'Iterations': 10,
+                            'Perplexity': 78.50},# HP. c' = tanh(c).. & out=tanh(newh+in)
                           {
                             'Training epochs': 55, 
                             'Learning rate scheme': 'decay by 0.86 after 14 epochs',
                             'Units per layer': 1500,
                             'Layers': 2,
                             'Iterations': 1,
-                            'Perplexity': 78.29}])
+                            'Perplexity': 78.29},
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
+                            'Units per layer': 325,
+                            'Layers': 1,
+                            'Iterations': 1,
+                            'Perplexity': 84.56},
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
+                            'Units per layer': 325,
+                            'Layers': 1,
+                            'Iterations': 2,
+                            'Perplexity': 83.05},
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
+                            'Units per layer': 325,
+                            'Layers': 1,
+                            'Iterations': 4,
+                            'Perplexity': 82.11},
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
+                            'Units per layer': 250,
+                            'Layers': 1,
+                            'Iterations': 5,
+                            'Perplexity': 84.12},
+                          {'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
+                            'Units per layer': 250,
+                            'Layers': 1,
+                            'Iterations': 6,
+                            'Perplexity': 83.65},
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
+                            'Units per layer': 250,
+                            'Layers': 1,
+                            'Iterations': 7,
+                            'Perplexity': 91.41}])
 results_df['Total Units'] = results_df['Layers'] * results_df['Units per layer']
 
 
-# In[34]:
+# In[43]:
 
-g = sns.FacetGrid(results_df[results_df['Layers']==1].dropna(), hue='Units per layer', size=8)
+results_of_one_layer_df = results_df[(results_df['Layers']==1)&(results_df['Units per layer'].isin([200, 650]))].dropna()
+g = sns.FacetGrid(results_of_one_layer_df, hue='Units per layer', size=8)
 g.map(plt.scatter, 'Iterations', 'Perplexity')
 g.map(plt.plot, 'Iterations', 'Perplexity')
 g.add_legend()
