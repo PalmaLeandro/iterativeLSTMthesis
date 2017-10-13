@@ -10,7 +10,7 @@ from rnn_cell import *
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
-    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=1., initial_iterate_prob=0.5,
+    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=2., initial_iterate_prob=0.5,
                  iterate_prob_decay=0.75, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
         self._device_to_run_at = device_to_run_at
 
