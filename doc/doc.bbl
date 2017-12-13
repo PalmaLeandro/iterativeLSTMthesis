@@ -1,0 +1,1505 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 2.8 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\sortlist[entry]{nty/global/}
+  \entry{24LongTermDependenciesBengio}{article}{}
+    \name{author}{3}{}{%
+      {{hash=BY}{%
+         family={Bengio},
+         familyi={B\bibinitperiod},
+         given={Yoshua},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=SP}{%
+         family={Simard},
+         familyi={S\bibinitperiod},
+         given={Patrice},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=FP}{%
+         family={Frasconi},
+         familyi={F\bibinitperiod},
+         given={Paolo},
+         giveni={P\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {IEEE}%
+    }
+    \strng{namehash}{BYSPFP1}
+    \strng{fullhash}{BYSPFP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{B}
+    \field{sortinithash}{B}
+    \field{number}{2}
+    \field{pages}{157\bibrangedash 166}
+    \field{title}{Learning long-term dependencies with gradient descent is
+  difficult}
+    \field{volume}{5}
+    \field{journaltitle}{IEEE transactions on neural networks}
+    \field{year}{1994}
+  \endentry
+
+  \entry{37BengioNeuralEmbeding}{article}{}
+    \name{author}{4}{}{%
+      {{hash=BY}{%
+         family={Bengio},
+         familyi={B\bibinitperiod},
+         given={Yoshua},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=DR}{%
+         family={Ducharme},
+         familyi={D\bibinitperiod},
+         given={R{\'e}jean},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=VP}{%
+         family={Vincent},
+         familyi={V\bibinitperiod},
+         given={Pascal},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=JC}{%
+         family={Jauvin},
+         familyi={J\bibinitperiod},
+         given={Christian},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BY+1}
+    \strng{fullhash}{BYDRVPJC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{B}
+    \field{sortinithash}{B}
+    \field{number}{Feb}
+    \field{pages}{1137\bibrangedash 1155}
+    \field{title}{A neural probabilistic language model}
+    \field{volume}{3}
+    \field{journaltitle}{Journal of machine learning research}
+    \field{year}{2003}
+  \endentry
+
+  \entry{32WideDeepLearning}{online}{}
+    \name{author}{16}{}{%
+      {{hash=CHT}{%
+         family={Cheng},
+         familyi={C\bibinitperiod},
+         given={Heng-Tze},
+         giveni={H\bibinitperiod-T\bibinitperiod},
+      }}%
+      {{hash=KL}{%
+         family={Koc},
+         familyi={K\bibinitperiod},
+         given={Levent},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=HJ}{%
+         family={Harmsen},
+         familyi={H\bibinitperiod},
+         given={Jeremiah},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=ST}{%
+         family={Shaked},
+         familyi={S\bibinitperiod},
+         given={Tal},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=CT}{%
+         family={Chandra},
+         familyi={C\bibinitperiod},
+         given={Tushar},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=AH}{%
+         family={Aradhye},
+         familyi={A\bibinitperiod},
+         given={Hrishi},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=AG}{%
+         family={Anderson},
+         familyi={A\bibinitperiod},
+         given={Glen},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=CG}{%
+         family={Corrado},
+         familyi={C\bibinitperiod},
+         given={Greg},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=CW}{%
+         family={Chai},
+         familyi={C\bibinitperiod},
+         given={Wei},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=IM}{%
+         family={Ispir},
+         familyi={I\bibinitperiod},
+         given={Mustafa},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=AR}{%
+         family={Anil},
+         familyi={A\bibinitperiod},
+         given={Rohan},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=HZ}{%
+         family={Haque},
+         familyi={H\bibinitperiod},
+         given={Zakaria},
+         giveni={Z\bibinitperiod},
+      }}%
+      {{hash=HL}{%
+         family={Hong},
+         familyi={H\bibinitperiod},
+         given={Lichan},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=JV}{%
+         family={Jain},
+         familyi={J\bibinitperiod},
+         given={Vihan},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=LX}{%
+         family={Liu},
+         familyi={L\bibinitperiod},
+         given={Xiaobing},
+         giveni={X\bibinitperiod},
+      }}%
+      {{hash=SH}{%
+         family={Shah},
+         familyi={S\bibinitperiod},
+         given={Hemal},
+         giveni={H\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CHT+1}
+    \strng{fullhash}{CHTKLHJSTCTAHAGCGCWIMARHZHLJVLXSH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{C}
+    \field{sortinithash}{C}
+    \verb{eprint}
+    \verb 1606.07792
+    \endverb
+    \field{title}{Wide and Deep Learning for Recommender Systems}
+    \field{eprinttype}{arXiv}
+    \field{year}{2016}
+  \endentry
+
+  \entry{40CollobetWeston}{inproceedings}{}
+    \name{author}{2}{}{%
+      {{hash=CR}{%
+         family={Collobert},
+         familyi={C\bibinitperiod},
+         given={Ronan},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=WJ}{%
+         family={Weston},
+         familyi={W\bibinitperiod},
+         given={Jason},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {ACM}%
+    }
+    \strng{namehash}{CRWJ1}
+    \strng{fullhash}{CRWJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{C}
+    \field{sortinithash}{C}
+    \field{booktitle}{Proceedings of the 25th international conference on
+  Machine learning}
+    \field{pages}{160\bibrangedash 167}
+    \field{title}{A unified architecture for natural language processing: Deep
+  neural networks with multitask learning}
+    \field{year}{2008}
+  \endentry
+
+  \entry{23BifurcationsDoya}{inproceedings}{}
+    \name{author}{1}{}{%
+      {{hash=DK}{%
+         family={Doya},
+         familyi={D\bibinitperiod},
+         given={Kenji},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {IEEE}%
+    }
+    \strng{namehash}{DK1}
+    \strng{fullhash}{DK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{D}
+    \field{sortinithash}{D}
+    \field{booktitle}{Circuits and Systems, 1992. ISCAS'92. Proceedings., 1992
+  IEEE International Symposium on}
+    \field{pages}{2777\bibrangedash 2780}
+    \field{title}{Bifurcations in the learning of recurrent neural networks}
+    \field{volume}{6}
+    \field{year}{1992}
+  \endentry
+
+  \entry{33TimeXORElman}{article}{}
+    \name{author}{1}{}{%
+      {{hash=EJL}{%
+         family={Elman},
+         familyi={E\bibinitperiod},
+         given={Jeffrey\bibnamedelima L},
+         giveni={J\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{EJL1}
+    \strng{fullhash}{EJL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{E}
+    \field{sortinithash}{E}
+    \field{title}{Finding structure in time}
+    \field{volume}{14}
+    \field{journaltitle}{Cognitive science}
+    \field{year}{1990}
+  \endentry
+
+  \entry{27DNNAgainstHumans}{online}{}
+    \name{author}{6}{}{%
+      {{hash=GR}{%
+         family={Geirhos},
+         familyi={G\bibinitperiod},
+         given={Robert},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=JDHJ}{%
+         family={Janssen},
+         familyi={J\bibinitperiod},
+         given={David H.\bibnamedelima J.},
+         giveni={D\bibinitperiod\bibinitdelim H\bibinitperiod\bibinitdelim
+  J\bibinitperiod},
+      }}%
+      {{hash=SHH}{%
+         family={Schütt},
+         familyi={S\bibinitperiod},
+         given={Heiko\bibnamedelima H.},
+         giveni={H\bibinitperiod\bibinitdelim H\bibinitperiod},
+      }}%
+      {{hash=RJ}{%
+         family={Rauber},
+         familyi={R\bibinitperiod},
+         given={Jonas},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=BM}{%
+         family={Bethge},
+         familyi={B\bibinitperiod},
+         given={Matthias},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=WFA}{%
+         family={Wichmann},
+         familyi={W\bibinitperiod},
+         given={Felix\bibnamedelima A.},
+         giveni={F\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GR+1}
+    \strng{fullhash}{GRJDHJSHHRJBMWFA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \verb{eprint}
+    \verb 1706.06969
+    \endverb
+    \field{title}{Comparing deep neural networks against humans: object
+  recognition when the signal gets weaker}
+    \field{eprinttype}{arXiv}
+    \field{year}{2017}
+  \endentry
+
+  \entry{16ForgateGatePeepholeConnectionsGers}{article}{}
+    \name{author}{1}{}{%
+      {{hash=GF}{%
+         family={Gers},
+         familyi={G\bibinitperiod},
+         given={Felix},
+         giveni={F\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GF1}
+    \strng{fullhash}{GF1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \field{title}{Long short-term memory in recurrent neural networks}
+    \field{journaltitle}{Unpublished PhD dissertation, Ecole Polytechnique
+  F{\'e}d{\'e}rale de Lausanne, Lausanne, Switzerland}
+    \field{year}{2001}
+  \endentry
+
+  \entry{1GANs}{online}{}
+    \name{author}{8}{}{%
+      {{hash=GIJ}{%
+         family={Goodfellow},
+         familyi={G\bibinitperiod},
+         given={Ian\bibnamedelima J.},
+         giveni={I\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+      {{hash=PAJ}{%
+         family={Pouget-Abadie},
+         familyi={P\bibinitperiod-A\bibinitperiod},
+         given={Jean},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=MM}{%
+         family={Mirza},
+         familyi={M\bibinitperiod},
+         given={Mehdi},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=XB}{%
+         family={Xu},
+         familyi={X\bibinitperiod},
+         given={Bing},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=WFD}{%
+         family={Warde-Farley},
+         familyi={W\bibinitperiod-F\bibinitperiod},
+         given={David},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=OS}{%
+         family={Ozair},
+         familyi={O\bibinitperiod},
+         given={Sherjil},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=CA}{%
+         family={Courville},
+         familyi={C\bibinitperiod},
+         given={Aaron},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=BY}{%
+         family={Bengio},
+         familyi={B\bibinitperiod},
+         given={Yoshua},
+         giveni={Y\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GIJ+1}
+    \strng{fullhash}{GIJPAJMMXBWFDOSCABY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \verb{eprint}
+    \verb 1406.2661
+    \endverb
+    \field{title}{Generative Adversarial Networks}
+    \field{eprinttype}{arXiv}
+    \field{year}{2014}
+  \endentry
+
+  \entry{15TransductionGraves}{online}{}
+    \name{author}{1}{}{%
+      {{hash=GA}{%
+         family={Graves},
+         familyi={G\bibinitperiod},
+         given={Alex},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GA1}
+    \strng{fullhash}{GA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \verb{eprint}
+    \verb 1211.3711
+    \endverb
+    \field{title}{Sequence Transduction with Recurrent Neural Networks}
+    \field{eprinttype}{arXiv}
+    \field{year}{2012}
+  \endentry
+
+  \entry{30NeuralTuringMachines}{online}{}
+    \name{author}{3}{}{%
+      {{hash=GA}{%
+         family={Graves},
+         familyi={G\bibinitperiod},
+         given={Alex},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=WG}{%
+         family={Wayne},
+         familyi={W\bibinitperiod},
+         given={Greg},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=DI}{%
+         family={Danihelka},
+         familyi={D\bibinitperiod},
+         given={Ivo},
+         giveni={I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GAWGDI1}
+    \strng{fullhash}{GAWGDI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \verb{eprint}
+    \verb 1410.5401
+    \endverb
+    \field{title}{Neural Turing Machines}
+    \field{eprinttype}{arXiv}
+    \field{year}{2014}
+  \endentry
+
+  \entry{18DifferentiableNeuralComputer}{article}{}
+    \true{moreauthor}
+    \name{author}{10}{}{%
+      {{hash=GA}{%
+         family={Graves},
+         familyi={G\bibinitperiod},
+         given={Alex},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=WG}{%
+         family={Wayne},
+         familyi={W\bibinitperiod},
+         given={Greg},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=RM}{%
+         family={Reynolds},
+         familyi={R\bibinitperiod},
+         given={Malcolm},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=HT}{%
+         family={Harley},
+         familyi={H\bibinitperiod},
+         given={Tim},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=DI}{%
+         family={Danihelka},
+         familyi={D\bibinitperiod},
+         given={Ivo},
+         giveni={I\bibinitperiod},
+      }}%
+      {{hash=GBA}{%
+         family={Grabska-Barwi{\'n}ska},
+         familyi={G\bibinitperiod-B\bibinitperiod},
+         given={Agnieszka},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=CSG}{%
+         family={Colmenarejo},
+         familyi={C\bibinitperiod},
+         given={Sergio\bibnamedelima G{\'o}mez},
+         giveni={S\bibinitperiod\bibinitdelim G\bibinitperiod},
+      }}%
+      {{hash=GE}{%
+         family={Grefenstette},
+         familyi={G\bibinitperiod},
+         given={Edward},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=RT}{%
+         family={Ramalho},
+         familyi={R\bibinitperiod},
+         given={Tiago},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=AJ}{%
+         family={Agapiou},
+         familyi={A\bibinitperiod},
+         given={John},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Nature Research}%
+    }
+    \strng{namehash}{GA+1}
+    \strng{fullhash}{GAWGRMHTDIGBACSGGERTAJ+1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \field{number}{7626}
+    \field{pages}{471\bibrangedash 476}
+    \field{title}{Hybrid computing using a neural network with dynamic external
+  memory}
+    \field{volume}{538}
+    \field{journaltitle}{Nature}
+    \field{year}{2016}
+  \endentry
+
+  \entry{12DeepSearch}{online}{}
+    \name{author}{11}{}{%
+      {{hash=HA}{%
+         family={Hannun},
+         familyi={H\bibinitperiod},
+         given={Awni},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=CC}{%
+         family={Case},
+         familyi={C\bibinitperiod},
+         given={Carl},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=CJ}{%
+         family={Casper},
+         familyi={C\bibinitperiod},
+         given={Jared},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=CB}{%
+         family={Catanzaro},
+         familyi={C\bibinitperiod},
+         given={Bryan},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=DG}{%
+         family={Diamos},
+         familyi={D\bibinitperiod},
+         given={Greg},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=EE}{%
+         family={Elsen},
+         familyi={E\bibinitperiod},
+         given={Erich},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=PR}{%
+         family={Prenger},
+         familyi={P\bibinitperiod},
+         given={Ryan},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=SS}{%
+         family={Satheesh},
+         familyi={S\bibinitperiod},
+         given={Sanjeev},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=SS}{%
+         family={Sengupta},
+         familyi={S\bibinitperiod},
+         given={Shubho},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=CA}{%
+         family={Coates},
+         familyi={C\bibinitperiod},
+         given={Adam},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=NAY}{%
+         family={Ng},
+         familyi={N\bibinitperiod},
+         given={Andrew\bibnamedelima Y.},
+         giveni={A\bibinitperiod\bibinitdelim Y\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HA+1}
+    \strng{fullhash}{HACCCJCBDGEEPRSSSSCANAY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{H}
+    \field{sortinithash}{H}
+    \verb{eprint}
+    \verb 1412.5567
+    \endverb
+    \field{title}{Deep Speech: Scaling up end-to-end speech recognition}
+    \field{eprinttype}{arXiv}
+    \field{year}{2014}
+  \endentry
+
+  \entry{28ResidualLearning}{online}{}
+    \name{author}{4}{}{%
+      {{hash=HK}{%
+         family={He},
+         familyi={H\bibinitperiod},
+         given={Kaiming},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=ZX}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Xiangyu},
+         giveni={X\bibinitperiod},
+      }}%
+      {{hash=RS}{%
+         family={Ren},
+         familyi={R\bibinitperiod},
+         given={Shaoqing},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=SJ}{%
+         family={Sun},
+         familyi={S\bibinitperiod},
+         given={Jian},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HK+1}
+    \strng{fullhash}{HKZXRSSJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{H}
+    \field{sortinithash}{H}
+    \verb{eprint}
+    \verb 1512.03385
+    \endverb
+    \field{title}{Deep Residual Learning for Image Recognition}
+    \field{eprinttype}{arXiv}
+    \field{year}{2015}
+  \endentry
+
+  \entry{25DependenciesProblemHochreiter}{article}{}
+    \name{author}{1}{}{%
+      {{hash=HS}{%
+         family={Hochreiter},
+         familyi={H\bibinitperiod},
+         given={Sepp},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HS1}
+    \strng{fullhash}{HS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{H}
+    \field{sortinithash}{H}
+    \field{title}{Untersuchungen zu dynamischen neuronalen Netzen}
+    \field{volume}{91}
+    \field{journaltitle}{Diploma, Technische Universit{\"a}t M{\"u}nchen}
+    \field{year}{1991}
+  \endentry
+
+  \entry{42FormerLSTMHochreiter}{article}{}
+    \name{author}{2}{}{%
+      {{hash=HS}{%
+         family={Hochreiter},
+         familyi={H\bibinitperiod},
+         given={Sepp},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=SJ}{%
+         family={Schmidhuber},
+         familyi={S\bibinitperiod},
+         given={J{\"u}rgen},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {MIT Press}%
+    }
+    \strng{namehash}{HSSJ1}
+    \strng{fullhash}{HSSJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{H}
+    \field{sortinithash}{H}
+    \field{number}{8}
+    \field{pages}{1735\bibrangedash 1780}
+    \field{title}{Long short-term memory}
+    \field{volume}{9}
+    \field{journaltitle}{Neural computation}
+    \field{year}{1997}
+  \endentry
+
+  \entry{34JurafskyBook}{book}{}
+    \name{author}{2}{}{%
+      {{hash=JD}{%
+         family={Jurafsky},
+         familyi={J\bibinitperiod},
+         given={Dan},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=MJH}{%
+         family={Martin},
+         familyi={M\bibinitperiod},
+         given={James\bibnamedelima H},
+         giveni={J\bibinitperiod\bibinitdelim H\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Pearson London}%
+    }
+    \strng{namehash}{JDMJH1}
+    \strng{fullhash}{JDMJH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{J}
+    \field{sortinithash}{J}
+    \field{title}{Speech and language processing}
+    \field{volume}{3}
+    \field{year}{2014}
+  \endentry
+
+  \entry{11Laurent}{online}{}
+    \name{author}{2}{}{%
+      {{hash=LT}{%
+         family={Laurent},
+         familyi={L\bibinitperiod},
+         given={Thomas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=vBJ}{%
+         prefix={von},
+         prefixi={v\bibinitperiod},
+         family={Brecht},
+         familyi={B\bibinitperiod},
+         given={James},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LTBJv1}
+    \strng{fullhash}{LTBJv1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \verb{eprint}
+    \verb 1612.06212
+    \endverb
+    \field{title}{A recurrent neural network without chaos}
+    \field{eprinttype}{arXiv}
+    \field{year}{2016}
+  \endentry
+
+  \entry{2BridgingGaps}{online}{}
+    \name{author}{2}{}{%
+      {{hash=LQ}{%
+         family={Liao},
+         familyi={L\bibinitperiod},
+         given={Qianli},
+         giveni={Q\bibinitperiod},
+      }}%
+      {{hash=PT}{%
+         family={Poggio},
+         familyi={P\bibinitperiod},
+         given={Tomaso},
+         giveni={T\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LQPT1}
+    \strng{fullhash}{LQPT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \verb{eprint}
+    \verb 1604.03640
+    \endverb
+    \field{title}{Bridging the Gaps Between Residual Learning, Recurrent Neural
+  Networks and Visual Cortex}
+    \field{eprinttype}{arXiv}
+    \field{year}{2016}
+  \endentry
+
+  \entry{17LoopyRNN}{online}{}
+    \name{author}{4}{}{%
+      {{hash=LD}{%
+         family={Luo},
+         familyi={L\bibinitperiod},
+         given={Donghao},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=NB}{%
+         family={Ni},
+         familyi={N\bibinitperiod},
+         given={Bingbing},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=YY}{%
+         family={Yan},
+         familyi={Y\bibinitperiod},
+         given={Yichao},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=YX}{%
+         family={Yang},
+         familyi={Y\bibinitperiod},
+         given={Xiaokang},
+         giveni={X\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LD+1}
+    \strng{fullhash}{LDNBYYYX1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{L}
+    \field{sortinithash}{L}
+    \verb{eprint}
+    \verb 1706.03190
+    \endverb
+    \field{title}{Image Matching via Loopy RNN}
+    \field{eprinttype}{arXiv}
+    \field{year}{2017}
+  \endentry
+
+  \entry{41PennTreebankMarcus}{article}{}
+    \name{author}{3}{}{%
+      {{hash=MMP}{%
+         family={Marcus},
+         familyi={M\bibinitperiod},
+         given={Mitchell\bibnamedelima P},
+         giveni={M\bibinitperiod\bibinitdelim P\bibinitperiod},
+      }}%
+      {{hash=MMA}{%
+         family={Marcinkiewicz},
+         familyi={M\bibinitperiod},
+         given={Mary\bibnamedelima Ann},
+         giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=SB}{%
+         family={Santorini},
+         familyi={S\bibinitperiod},
+         given={Beatrice},
+         giveni={B\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {MIT Press}%
+    }
+    \strng{namehash}{MMPMMASB1}
+    \strng{fullhash}{MMPMMASB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+    \field{number}{2}
+    \field{pages}{313\bibrangedash 330}
+    \field{title}{Building a large annotated corpus of English: The Penn
+  Treebank}
+    \field{volume}{19}
+    \field{journaltitle}{Computational linguistics}
+    \field{year}{1993}
+  \endentry
+
+  \entry{35MikolovRecurrentEmbedings}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=MT}{%
+         family={Mikolov},
+         familyi={M\bibinitperiod},
+         given={Tomas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=YWt}{%
+         family={Yih},
+         familyi={Y\bibinitperiod},
+         given={Wen-tau},
+         giveni={W\bibinitperiod-t\bibinitperiod},
+      }}%
+      {{hash=ZG}{%
+         family={Zweig},
+         familyi={Z\bibinitperiod},
+         given={Geoffrey},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MTYWtZG1}
+    \strng{fullhash}{MTYWtZG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+    \field{booktitle}{hlt-Naacl}
+    \field{pages}{746\bibrangedash 751}
+    \field{title}{Linguistic regularities in continuous space word
+  representations.}
+    \field{volume}{13}
+    \field{year}{2013}
+  \endentry
+
+  \entry{36MikolovImprovement}{inproceedings}{}
+    \name{author}{5}{}{%
+      {{hash=MT}{%
+         family={Mikolov},
+         familyi={M\bibinitperiod},
+         given={Tomas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=SI}{%
+         family={Sutskever},
+         familyi={S\bibinitperiod},
+         given={Ilya},
+         giveni={I\bibinitperiod},
+      }}%
+      {{hash=CK}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={Kai},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=CGS}{%
+         family={Corrado},
+         familyi={C\bibinitperiod},
+         given={Greg\bibnamedelima S},
+         giveni={G\bibinitperiod\bibinitdelim S\bibinitperiod},
+      }}%
+      {{hash=DJ}{%
+         family={Dean},
+         familyi={D\bibinitperiod},
+         given={Jeff},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MT+1}
+    \strng{fullhash}{MTSICKCGSDJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+    \field{booktitle}{Advances in neural information processing systems}
+    \field{pages}{3111\bibrangedash 3119}
+    \field{title}{Distributed representations of words and phrases and their
+  compositionality}
+    \field{year}{2013}
+  \endentry
+
+  \entry{38MikolovFormer}{online}{}
+    \name{author}{4}{}{%
+      {{hash=MT}{%
+         family={Mikolov},
+         familyi={M\bibinitperiod},
+         given={Tomas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=CK}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={Kai},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=CG}{%
+         family={Corrado},
+         familyi={C\bibinitperiod},
+         given={Greg},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=DJ}{%
+         family={Dean},
+         familyi={D\bibinitperiod},
+         given={Jeffrey},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MT+1}
+    \strng{fullhash}{MTCKCGDJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+    \verb{eprint}
+    \verb 1301.3781
+    \endverb
+    \field{title}{Efficient Estimation of Word Representations in Vector Space}
+    \field{eprinttype}{arXiv}
+    \field{year}{2013}
+  \endentry
+
+  \entry{8AttentionModels}{online}{}
+    \name{author}{4}{}{%
+      {{hash=MV}{%
+         family={Mnih},
+         familyi={M\bibinitperiod},
+         given={Volodymyr},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=HN}{%
+         family={Heess},
+         familyi={H\bibinitperiod},
+         given={Nicolas},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=GA}{%
+         family={Graves},
+         familyi={G\bibinitperiod},
+         given={Alex},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=KK}{%
+         family={Kavukcuoglu},
+         familyi={K\bibinitperiod},
+         given={Koray},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MV+1}
+    \strng{fullhash}{MVHNGAKK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{M}
+    \field{sortinithash}{M}
+    \verb{eprint}
+    \verb 1406.6247
+    \endverb
+    \field{title}{Recurrent Models of Visual Attention}
+    \field{eprinttype}{arXiv}
+    \field{year}{2014}
+  \endentry
+
+  \entry{10Pascanu}{online}{}
+    \name{author}{3}{}{%
+      {{hash=PR}{%
+         family={Pascanu},
+         familyi={P\bibinitperiod},
+         given={Razvan},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=MT}{%
+         family={Mikolov},
+         familyi={M\bibinitperiod},
+         given={Tomas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=BY}{%
+         family={Bengio},
+         familyi={B\bibinitperiod},
+         given={Yoshua},
+         giveni={Y\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{PRMTBY1}
+    \strng{fullhash}{PRMTBY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{P}
+    \field{sortinithash}{P}
+    \verb{eprint}
+    \verb 1211.5063
+    \endverb
+    \field{title}{On the difficulty of training Recurrent Neural Networks}
+    \field{eprinttype}{arXiv}
+    \field{year}{2012}
+  \endentry
+
+  \entry{39GlovePennington}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=PJ}{%
+         family={Pennington},
+         familyi={P\bibinitperiod},
+         given={Jeffrey},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=SR}{%
+         family={Socher},
+         familyi={S\bibinitperiod},
+         given={Richard},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=MC}{%
+         family={Manning},
+         familyi={M\bibinitperiod},
+         given={Christopher},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{PJSRMC1}
+    \strng{fullhash}{PJSRMC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{P}
+    \field{sortinithash}{P}
+    \field{booktitle}{Proceedings of the 2014 conference on empirical methods
+  in natural language processing (EMNLP)}
+    \field{pages}{1532\bibrangedash 1543}
+    \field{title}{Glove: Global vectors for word representation}
+    \field{year}{2014}
+  \endentry
+
+  \entry{29ShortcutConnections}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=RT}{%
+         family={Raiko},
+         familyi={R\bibinitperiod},
+         given={Tapani},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=VH}{%
+         family={Valpola},
+         familyi={V\bibinitperiod},
+         given={Harri},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=LY}{%
+         family={LeCun},
+         familyi={L\bibinitperiod},
+         given={Yann},
+         giveni={Y\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RTVHLY1}
+    \strng{fullhash}{RTVHLY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{R}
+    \field{sortinithash}{R}
+    \field{booktitle}{Artificial Intelligence and Statistics}
+    \field{pages}{924\bibrangedash 932}
+    \field{title}{Deep learning made easier by linear transformations in
+  perceptrons}
+    \field{year}{2012}
+  \endentry
+
+  \entry{19IntroductionRNN}{report}{}
+    \name{author}{3}{}{%
+      {{hash=RDE}{%
+         family={Rumelhart},
+         familyi={R\bibinitperiod},
+         given={David\bibnamedelima E},
+         giveni={D\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+      {{hash=HGE}{%
+         family={Hinton},
+         familyi={H\bibinitperiod},
+         given={Geoffrey\bibnamedelima E},
+         giveni={G\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+      {{hash=WRJ}{%
+         family={Williams},
+         familyi={W\bibinitperiod},
+         given={Ronald\bibnamedelima J},
+         giveni={R\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RDEHGEWRJ1}
+    \strng{fullhash}{RDEHGEWRJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{R}
+    \field{sortinithash}{R}
+    \field{title}{Learning internal representations by error propagation}
+    \list{institution}{1}{%
+      {California Univ San Diego La Jolla Inst for Cognitive Science}%
+    }
+    \field{type}{techreport}
+    \field{year}{1985}
+  \endentry
+
+  \entry{13SpeechRecognition}{online}{}
+    \name{author}{3}{}{%
+      {{hash=SH}{%
+         family={Sak},
+         familyi={S\bibinitperiod},
+         given={Haşim},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=SA}{%
+         family={Senior},
+         familyi={S\bibinitperiod},
+         given={Andrew},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=BF}{%
+         family={Beaufays},
+         familyi={B\bibinitperiod},
+         given={Françoise},
+         giveni={F\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SHSABF1}
+    \strng{fullhash}{SHSABF1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \verb{eprint}
+    \verb 1402.1128
+    \endverb
+    \field{title}{Long Short-Term Memory Based Recurrent Neural Network
+  Architectures for Large Vocabulary Speech Recognition}
+    \field{eprinttype}{arXiv}
+    \field{year}{2014}
+  \endentry
+
+  \entry{21StrogatzBook}{book}{}
+    \name{author}{1}{}{%
+      {{hash=SSH}{%
+         family={Strogatz},
+         familyi={S\bibinitperiod},
+         given={Steven\bibnamedelima H},
+         giveni={S\bibinitperiod\bibinitdelim H\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Hachette UK}%
+    }
+    \strng{namehash}{SSH1}
+    \strng{fullhash}{SSH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{title}{Nonlinear dynamics and chaos: with applications to physics,
+  biology, chemistry, and engineering}
+    \field{year}{2014}
+  \endentry
+
+  \entry{20SutskeverPhdThesis}{article}{}
+    \name{author}{1}{}{%
+      {{hash=SI}{%
+         family={Sutskever},
+         familyi={S\bibinitperiod},
+         given={Ilya},
+         giveni={I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SI1}
+    \strng{fullhash}{SI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{title}{Training recurrent neural networks}
+    \field{journaltitle}{University of Toronto, Toronto, Ont., Canada}
+    \field{year}{2013}
+  \endentry
+
+  \entry{22IntroBackpropagation}{article}{}
+    \name{author}{2}{}{%
+      {{hash=WD}{%
+         family={Williams},
+         familyi={W\bibinitperiod},
+         given={DRGHR},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=HG}{%
+         family={Hinton},
+         familyi={H\bibinitperiod},
+         given={Geoffrey},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WDHG1}
+    \strng{fullhash}{WDHG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{W}
+    \field{sortinithash}{W}
+    \field{number}{6088}
+    \field{pages}{533\bibrangedash 538}
+    \field{title}{Learning representations by back-propagating errors}
+    \field{volume}{323}
+    \field{journaltitle}{Nature}
+    \field{year}{1986}
+  \endentry
+
+  \entry{31NeuralTuringMachinesRevised}{online}{}
+    \name{author}{2}{}{%
+      {{hash=ZW}{%
+         family={Zaremba},
+         familyi={Z\bibinitperiod},
+         given={Wojciech},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=SI}{%
+         family={Sutskever},
+         familyi={S\bibinitperiod},
+         given={Ilya},
+         giveni={I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ZWSI1}
+    \strng{fullhash}{ZWSI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Z}
+    \field{sortinithash}{Z}
+    \verb{eprint}
+    \verb 1505.00521
+    \endverb
+    \field{title}{Reinforcement Learning Neural Turing Machines - Revised}
+    \field{eprinttype}{arXiv}
+    \field{year}{2015}
+  \endentry
+
+  \entry{14RegularizationZaremba}{online}{}
+    \name{author}{3}{}{%
+      {{hash=ZW}{%
+         family={Zaremba},
+         familyi={Z\bibinitperiod},
+         given={Wojciech},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=SI}{%
+         family={Sutskever},
+         familyi={S\bibinitperiod},
+         given={Ilya},
+         giveni={I\bibinitperiod},
+      }}%
+      {{hash=VO}{%
+         family={Vinyals},
+         familyi={V\bibinitperiod},
+         given={Oriol},
+         giveni={O\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ZWSIVO1}
+    \strng{fullhash}{ZWSIVO1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Z}
+    \field{sortinithash}{Z}
+    \verb{eprint}
+    \verb 1409.2329
+    \endverb
+    \field{title}{Recurrent Neural Network Regularization}
+    \field{eprinttype}{arXiv}
+    \field{year}{2014}
+  \endentry
+
+  \entry{5IntermediateFeatures}{online}{}
+    \name{author}{2}{}{%
+      {{hash=ZMD}{%
+         family={Zeiler},
+         familyi={Z\bibinitperiod},
+         given={Matthew\bibnamedelima D},
+         giveni={M\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+      {{hash=FR}{%
+         family={Fergus},
+         familyi={F\bibinitperiod},
+         given={Rob},
+         giveni={R\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ZMDFR1}
+    \strng{fullhash}{ZMDFR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Z}
+    \field{sortinithash}{Z}
+    \verb{eprint}
+    \verb 1311.2901
+    \endverb
+    \field{title}{Visualizing and Understanding Convolutional Networks}
+    \field{eprinttype}{arXiv}
+    \field{year}{2013}
+  \endentry
+
+  \entry{7MachineTranslation}{online}{}
+    \name{author}{3}{}{%
+      {{hash=ZB}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Biao},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=XD}{%
+         family={Xiong},
+         familyi={X\bibinitperiod},
+         given={Deyi},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=SJ}{%
+         family={Su},
+         familyi={S\bibinitperiod},
+         given={Jinsong},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ZBXDSJ1}
+    \strng{fullhash}{ZBXDSJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Z}
+    \field{sortinithash}{Z}
+    \verb{eprint}
+    \verb 1607.08725
+    \endverb
+    \field{title}{Recurrent Neural Machine Translation}
+    \field{eprinttype}{arXiv}
+    \field{year}{2016}
+  \endentry
+
+  \entry{6Generalization}{online}{}
+    \name{author}{5}{}{%
+      {{hash=ZC}{%
+         family={Zhang},
+         familyi={Z\bibinitperiod},
+         given={Chiyuan},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=BS}{%
+         family={Bengio},
+         familyi={B\bibinitperiod},
+         given={Samy},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=HM}{%
+         family={Hardt},
+         familyi={H\bibinitperiod},
+         given={Moritz},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=RB}{%
+         family={Recht},
+         familyi={R\bibinitperiod},
+         given={Benjamin},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=VO}{%
+         family={Vinyals},
+         familyi={V\bibinitperiod},
+         given={Oriol},
+         giveni={O\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ZC+1}
+    \strng{fullhash}{ZCBSHMRBVO1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{Z}
+    \field{sortinithash}{Z}
+    \verb{eprint}
+    \verb 1611.03530
+    \endverb
+    \field{title}{Understanding deep learning requires rethinking
+  generalization}
+    \field{eprinttype}{arXiv}
+    \field{year}{2016}
+  \endentry
+\endsortlist
+\endinput
