@@ -379,19 +379,28 @@ def main(_):
       initial_epoch = 0
 
     init_logs()
-    total_parameters = 0
-    for variable in tf.trainable_variables():
-        # shape is an array of tf.Dimension
-        shape = variable.get_shape()
-        print(shape)
-        print(len(shape))
-        variable_parameters = 1
-        for dim in shape:
-            print(dim)
-            variable_parameters *= dim.value
-        print(variable_parameters)
-        total_parameters += variable_parameters
-    print(total_parameters)
+    init_model_persistance()
+
+    train_writer = tf.train.SummaryWriter(FLAGS.logdir + "/train", session.graph)
+    valid_writer = tf.train.SummaryWriter(FLAGS.logdir + "/valid", session.graph)
+    test_writer = tf.train.SummaryWriter(FLAGS.logdir + "/test", session.graph)
+
+    for i in range(initial_epoch, config.max_max_epoch):
+      lr_decay = config.lr_decay ** max(i - config.max_epoch, 0.0)
+      m.assign_lr(session, config.learning_rate * lr_decay)
+
+      print("Epoch: %d Learning rate: %.3f" % (i + 1, session.run(m.lr)))
+      train_perplexity = run_epoch(session, m, train_data, m.train_op,
+                                   verbose=True, summary_op=None, summary_writer=train_writer)
+      print("Epoch: %d Train Perplexity: %.3f" % (i + 1, train_perplexity))
+      valid_perplexity = run_epoch(session, mvalid, valid_data, tf.no_op(), summary_op=None,summary_writer=None)
+      print("Epoch: %d Valid Perplexity: %.3f" % (i + 1, valid_perplexity))
+      if FLAGS.exportmodeldir is not None:
+        tf.train.Saver().save(session,FLAGS.exportmodeldir+"/model/model.ckpt",global_step=i)
+    test_perplexity = run_epoch(session, mtest, test_data, tf.no_op(), summary_op=merged_summaries_for_test, summary_writer=test_writer)
+    if FLAGS.exportmodeldir is not None:
+      tf.train.Saver().save(session,FLAGS.exportmodeldir+"/model/model.ckpt",global_step=config.max_max_epoch)
+    print("Test Perplexity: %.3f" % test_perplexity)
 
 
 if __name__ == "__main__":
