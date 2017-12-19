@@ -3,7 +3,8 @@
 
 # ## Recopilacion parcial de resultados
 
-# In[1]:
+# In[2]:
+
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -13,7 +14,8 @@ sns.set_style("whitegrid")
 sns.set_context("talk", font_scale=1.4)
 
 
-# In[2]:
+# In[23]:
+
 
 results_df = pd.DataFrame([{
                             'Training epochs': 40, 
@@ -229,6 +231,20 @@ results_df = pd.DataFrame([{
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
                             'Units per layer': 650,
+                            'Layers': 2,
+                            'Iterations': 9,
+                            'Perplexity': None},
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
+                            'Units per layer': 650,
+                            'Layers': 2,
+                            'Iterations': 10,
+                            'Perplexity': None},
+                          {
+                            'Training epochs': 40, 
+                            'Learning rate scheme': 'decay by 0.8 after 6 epochs',
+                            'Units per layer': 650,
                             'Layers': 1,
                             'Iterations': 9,
                             'Perplexity': 78.88},
@@ -290,18 +306,22 @@ results_df = pd.DataFrame([{
 results_df['Total Units'] = results_df['Layers'] * results_df['Units per layer']
 
 
-# In[6]:
+# In[24]:
+
 
 df = results_df[(results_df['Layers'].isin([1,2]))&(results_df['Units per layer'].isin([650]))].dropna()
-g = sns.FacetGrid(df.groupby(['Iterations','Layers'])[ 'Perplexity'].min().reset_index(), hue='Layers', size=8)
+g = sns.FacetGrid(df.groupby(['Iterations','Layers'])[ 'Perplexity'].min().reset_index(), hue='Layers', size=8, 
+                 hue_kws={'color': ['b', 'r'], "ls" : ["-","--"]})
 #g.map(plt.scatter, 'Iterations', 'Perplexity')
 g.map(plt.plot, 'Iterations', 'Perplexity')
+g.fig.suptitle('Performance versus iterations made', fontsize=25, y=1.0)
 g.add_legend()
-
+plt.xticks(range(11))
 plt.show()
 
 
 # In[4]:
+
 
 g = sns.FacetGrid(results_df[results_df['Iterations']==1].dropna(), hue='Units per layer', size=8)
 g.map(plt.scatter, 'Layers', 'Perplexity')
@@ -313,10 +333,12 @@ plt.show()
 
 # In[5]:
 
+
 results_df.sort_values('Perplexity').dropna()
 
 
 # In[ ]:
+
 
 
 
