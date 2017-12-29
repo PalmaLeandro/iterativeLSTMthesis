@@ -14,7 +14,7 @@ sns.set_style("whitegrid")
 sns.set_context("talk", font_scale=1.4)
 
 
-# In[25]:
+# In[3]:
 
 
 results_df = pd.DataFrame([{
@@ -233,7 +233,7 @@ results_df = pd.DataFrame([{
                             'Units per layer': 650,
                             'Layers': 2,
                             'Iterations': 9,
-                            'Perplexity': None},
+                            'Perplexity': 79.02},
                           {
                             'Training epochs': 40, 
                             'Learning rate scheme': 'decay by 0.8 after 6 epochs',
@@ -306,7 +306,7 @@ results_df = pd.DataFrame([{
 results_df['Total Units'] = results_df['Layers'] * results_df['Units per layer']
 
 
-# In[26]:
+# In[4]:
 
 
 df = results_df[(results_df['Layers'].isin([1,2]))&(results_df['Units per layer'].isin([650]))].dropna()
