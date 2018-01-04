@@ -10,7 +10,7 @@ from rnn_cell import *
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
-    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=6., initial_iterate_prob=0.5,
+    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=10., initial_iterate_prob=0.5,
                  iterate_prob_decay=0.75, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
         self._device_to_run_at = device_to_run_at
 
@@ -52,23 +52,23 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         return self._internal_nn.state_size
 
     def __call__(self, input, state, scope=None):
-        if self._should_add_summaries:
-            self.add_pre_execution_summaries(input, state)
+        #if self._should_add_summaries:
+        #    self.add_pre_execution_summaries(input, state)
 
         with vs.variable_scope(scope or type(self).__name__):
             loop_vars = [input, state, tf.zeros([self.output_size]), tf.constant(0.0), tf.constant(0.0),
                          tf.constant(self._max_iteration_constant), tf.constant(self._initial_iterate_prob_constant),
-                         tf.constant(self._iterate_prob_decay_constant), tf.ones(tf.shape(input)), tf.zeros([input.get_shape().dims[0].value, 1]),
+                         tf.constant(self._iterate_prob_decay_constant), tf.ones(tf.shape(input)), tf.zeros([input.get_shape().dims[0].value, self.output_size]),
                          tf.constant(True)]
             loop_vars[0], loop_vars[1], loop_vars[2], loop_vars[3], loop_vars[4], loop_vars[5], loop_vars[6], loop_vars[
                 7], loop_vars[8], loop_vars[9], loop_vars[10] = tf.while_loop(iterativeLSTM_LoopCondition, iterativeLSTM_Iteration, loop_vars)
 
         #_, loop_vars[0] = array_ops.split(1, 2, loop_vars[1])
 
-        if self._should_add_summaries:
-            self.add_post_execution_summaries(input, state, loop_vars[0] , loop_vars[1], loop_vars[4], None, loop_vars[9], None)
+        #if self._should_add_summaries:
+        #    self.add_post_execution_summaries(input, state, loop_vars[0] , loop_vars[1], loop_vars[4], None, loop_vars[9], None)
 
-        return loop_vars[0], loop_vars[1]
+        return tanh(loop_vars[0] + input), loop_vars[1]
 
     def add_pre_execution_summaries(self, input, state):
         if not self._already_added_summaries.__contains__(tf.get_variable_scope().name +
@@ -114,7 +114,7 @@ def iterativeLSTM_Iteration(inputs, state, num_units, forget_bias, iteration_num
                                                                                         iteration_count, iteration_prob)
     iteration_flag = tf.reduce_max(new_iteration_activation)
 
-    iteration_count = iteration_count + 1
+    iteration_count = iteration_count + iteration_flag
 
     new_iteration_number = iteration_number + iteration_flag
 
@@ -145,7 +145,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     # "BasicLSTM"
     # Parameters of gates are concatenated into one multiply for efficiency.
     c, h = array_ops.split(1, 2, state)
-    concat = linear([inputs, h, iteration_count], 4 * num_units, True)
+    concat = linear([inputs, h], 4 * num_units, True)
     # i = input_gate, j = new_input, f = forget_gate, o = output_gate
     i, j, f, o = array_ops.split(1, 4, concat)
 
@@ -157,7 +157,7 @@ def iterativeLSTM(inputs, state, num_units, forget_bias, iteration_activation, i
     new_c = new_c * iteration_activation + c * (1 - iteration_activation)
 
     new_state = array_ops.concat(1, [new_c, new_h])
-    new_output = (new_h+inputs) * iteration_activation + inputs * (1 - iteration_activation)
+    new_output = new_h * iteration_activation + inputs * (1 - iteration_activation)
 
     # In this approach the evidence of the iteration gate is based on the inputs that doesn't change over iterations and its state
     #p = linear([j], num_units, True, scope= "iteration_activation")

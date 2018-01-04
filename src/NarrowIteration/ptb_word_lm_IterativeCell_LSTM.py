@@ -63,7 +63,7 @@ import tensorflow as tf
 
 from tensorflow.models.rnn.ptb import reader
 
-from IterativeCell import IterativeCell
+from NarrowIterativeLSTM import *
 
 flags = tf.flags
 logging = tf.logging
@@ -108,15 +108,11 @@ class PTBModel(object):
     # Slightly better results can be obtained with forget gate biases
     # initialized to 1 but the hyperparameters of the model would need to be
     # different than reported in the paper.
-    core_cell = tf.nn.rnn_cell.BasicLSTMCell(size, forget_bias=0.0)
-    iterative_lstm_cell = IterativeCell(core_cell,add_summaries= not is_training)
+    iterative_lstm_cell = IterativeCell(tf.nn.rnn_cell.BasicLSTMCell(size, forget_bias=0.0),add_summaries= not is_training)
     if is_training and config.keep_prob < 1:
-      pass
-    core_cell = tf.nn.rnn_cell.DropoutWrapper(
-      core_cell, output_keep_prob=config.keep_prob)
-    iterative_lstm_cell = tf.nn.rnn_cell.DropoutWrapper(
-      iterative_lstm_cell, output_keep_prob=config.keep_prob)
-    cell = tf.nn.rnn_cell.MultiRNNCell([iterative_lstm_cell, core_cell ])
+      iterative_lstm_cell = tf.nn.rnn_cell.DropoutWrapper(
+        iterative_lstm_cell, output_keep_prob=config.keep_prob)
+    cell = tf.nn.rnn_cell.MultiRNNCell([iterative_lstm_cell] * config.num_layers)
 
     self._initial_state = cell.zero_state(batch_size, tf.float32)
 
@@ -150,9 +146,9 @@ class PTBModel(object):
     softmax_b = tf.get_variable("softmax_b", [vocab_size])
     logits = tf.matmul(output, softmax_w) + softmax_b
     loss = tf.nn.seq2seq.sequence_loss_by_example(
-      [logits],
-      [tf.reshape(self._targets, [-1])],
-      [tf.ones([batch_size * num_steps])])
+        [logits],
+        [tf.reshape(self._targets, [-1])],
+        [tf.ones([batch_size * num_steps])])
     self._cost = cost = tf.reduce_sum(loss) / batch_size
     self._final_state = state
 
@@ -219,10 +215,10 @@ class MediumConfig(object):
   init_scale = 0.05
   learning_rate = 1.0
   max_grad_norm = 5
-  num_layers = 2
+  num_layers = 1
   num_steps = 35
-  hidden_size = 650
-  max_epoch = 6
+  hidden_size = 200
+  max_epoch = 14
   max_max_epoch = 39
   keep_prob = 0.5
   lr_decay = 0.8
@@ -338,8 +334,6 @@ def main(_):
 
   config = get_config()
   eval_config = get_config()
-  eval_config.batch_size = 1
-  eval_config.num_steps = 1
 
   with tf.Graph().as_default(), tf.Session() as session:
 
