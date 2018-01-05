@@ -39,7 +39,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
     @property
     def state_size(self):
-        return self._input_size *2
+        return self._input_size * 2
 
     def __call__(self, input, state, scope=None):
         #if self._should_add_summaries:
