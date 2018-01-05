@@ -10,19 +10,9 @@ from rnn_cell import *
 
 class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
-    def __init__(self, internal_nn, iteration_activation_nn=None, max_iterations=10., initial_iterate_prob=0.5,
+    def __init__(self, size, iteration_activation_nn=None, max_iterations=8., initial_iterate_prob=0.5,
                  iterate_prob_decay=0.75, allow_cell_reactivation=True, add_summaries=False, device_to_run_at=None):
         self._device_to_run_at = device_to_run_at
-
-        if internal_nn is None:
-            raise "You must define an internal NN to iterate"
-
-        if internal_nn.input_size != internal_nn.output_size:
-            raise "Input and output sizes of the internal NN must be the same in order to iterate over them"
-
-        if iteration_activation_nn is not None and (iteration_activation_nn.output_size != internal_nn.output_size):
-            raise "Input and output sizes of the iteration activation NN should be the same as the ones from " \
-                  "internal NN"
 
         if max_iterations < 1:
             raise "The maximum amount of iterations to perform must be a natural value"
@@ -30,7 +20,7 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
         if initial_iterate_prob <= 0 or initial_iterate_prob >= 1:
             raise "iteration_prob must be a value between 0 and 1"
 
-        self._internal_nn = internal_nn
+        self._input_size = size
         self._iteration_activation_nn = iteration_activation_nn
         self._max_iteration_constant = max_iterations
         self._initial_iterate_prob_constant = initial_iterate_prob
@@ -41,15 +31,15 @@ class IterativeCell(tf.nn.rnn_cell.RNNCell):
 
     @property
     def input_size(self):
-        return self._internal_nn._input_size
+        return self._input_size
 
     @property
     def output_size(self):
-        return self._internal_nn.output_size
+        return self._input_size
 
     @property
     def state_size(self):
-        return self._internal_nn.state_size
+        return self._input_size *2
 
     def __call__(self, input, state, scope=None):
         #if self._should_add_summaries:
